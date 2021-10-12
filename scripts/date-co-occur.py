@@ -90,6 +90,48 @@ def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
             
     return list_out, excs_out, grams_list
 
+
+def comp_dates(seq_list):
+    seq_copy = seq_list[:]
+    out = []
+    for no, seq in enumerate(tqdm(seq_list)):
+        seq_copy.remove(seq)
+        dates = seq["dates"]
+        
+        
+        if dates == "None":
+            continue
+        else:
+            if "000" in dates:
+                dates.remove("000")
+            out_dict = {}            
+            cluster = []
+            f_dates = []
+            for copied in seq_copy:
+                match = False
+                m_count = 0
+                for date in dates:
+                    if date in copied["dates"]:
+                        match = True
+                        m_count = m_count + 1
+                    if match:
+                        cluster.append({"section" : [copied["seq"], copied["title"], copied["dates"]], "match_count" : m_count})
+                        f_dates.extend(copied["dates"])
+            if len(cluster) >= 1:
+                f_dates.extend(seq["dates"])
+                f_dates = list(dict.fromkeys(f_dates))
+                out_dict["cluster"] = no
+                out_dict["sections"] = len(cluster)
+                out_dict["all_dates"] = f_dates
+                cluster.append([seq["seq"], seq["title"], seq["dates"]])
+                out_dict["sections"] = cluster
+                out.append(out_dict)
+    print(str(len(out)) + " date clusters found")
+    return out    
+                
+                
+                        
+
 def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
     seq_copy = seq_list[:]
     for seq in seq_list:
@@ -114,7 +156,7 @@ with open(path, encoding = "utf-8") as f:
     text = f.read()
     f.close()
 
-out, exc_out, grams_out = split_date_freq(text)
+# out, exc_out, grams_out = split_date_freq(text)
 # Split text into sections
 
 # Get section title - pass to dict
