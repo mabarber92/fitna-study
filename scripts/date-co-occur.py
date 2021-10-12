@@ -8,7 +8,8 @@ Created on Sun Oct 10 11:20:19 2021
 # Need to strip out page nos, puntuation etc.
 
 import re
-
+import os
+from tqdm import tqdm
 
 def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
     "Function that gets specified and counted ngrams"
@@ -19,64 +20,74 @@ def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
     list_out = []
     excs_out = []
     grams_list = []
-    for seq, section in enumerate(section_list):
-        dict_item = {}
+    # Write out gram headers for later
+    for n_gram in n_grams:
+        name = "freqs_" + str(n_gram) + "gram"
+        grams_list.append(name)
+        
+    for seq, section in enumerate(tqdm(section_list)):
+            dict_item = {}
     # Get title and level
-        print(".", sep="")
-        title = re.findall(r"\s\|+\s.*\n", section)
-        if len(title) == 0:
-            continue
-        level = len(re.findall(r"\s(\|+)\s", title[0])[0])
-        dict_item["seq"] = seq
-        dict_item["title"] = title
-        dict_item["level"] = level
         
-        dates = re.findall(r"@YY(\d{3})", section)
-        if len(dates) >= 1:
-            dates = dates.sort()
-            dict_item["dates"] = dates
-        else:
-            dict_item["dates"] = "None"
+            title = re.findall(r"\s\|+\s.*\n", section)
+            if len(title) == 0:
+                continue
+            level = len(re.findall(r"\s(\|+)\s", title[0])[0])
+            dict_item["seq"] = seq
+            dict_item["title"] = title
+            dict_item["level"] = level
         
-        # Remove all puntuation, latin script chars and numbers
-        section = re.sub(r"[a-z]|[A-Z]|[.,:;\d@؟\",!#\]\[-]", "", section)
-        
-        # Tokenize and count according to specified ngram sequences (using shingling method)
-        tokenized = section.split() 
-        for n_gram in n_grams:
-            shingled = [tokenized[i:i+n_gram] for i in range(len(tokenized)-2+n_gram)]
-            joined = []
-            if n_gram >= 2:
+            dates = re.findall(r"@YY(\d{3})", section)
+            
+            if len(dates) >= 1:
+                dates.sort(key = int)
                 
-                for item in shingled:
-                    joined.append(" ".join(item))
+                dict_item["dates"] = dates
             else:
-                 for item in shingled:
-                    joined.append(item[0])
-            
-            
-            
-            ## Now only get unique and count freqs
-            unique = list(set(joined))
-            freqs = []
-            for gram in unique:
-                freq = joined.count(gram)
-                new_item = {}
-                new_item[gram] = freq
-                freqs.append(new_item)
+                dict_item["dates"] = "None"
                 
-                if freq >= exc_freq:
-                    exc_item = dict_item.copy()
-                    exc_item[gram] = freq
-                    excs_out.append(exc_item)
             
-            dict_name = "freqs_" + str(n_gram) + "gram"
-            dict_item[dict_name] = freqs
-            grams_list.append(dict_name)  
+            # Remove all puntuation, latin script chars and numbers
+            section = re.sub(r"[a-z]|[A-Z]|[.,:;\d@؟\",!#\]\[-~]", "", section)
             
+            # Tokenize and count according to specified ngram sequences (using shingling method)
+            tokenized = section.split()
+           
+            for n_gram in n_grams:
+                shingled = [tokenized[i:i+n_gram] for i in range(len(tokenized)-2+n_gram)]
+                joined = []
+                if n_gram >= 2:
+                    
+                    for item in shingled:
+                        joined.append(" ".join(item))
+                else:
+                     for item in shingled:
+                        joined.append(item[0])
+                
+                
+                
+                ## Now only get unique and count freqs
+                unique = list(set(joined))
+                freqs = []
+                for gram in unique:
+                    freq = joined.count(gram)
+                    new_item = {}
+                    new_item[gram] = freq
+                    freqs.append(new_item)
+                    
+                    if freq >= exc_freq:
+                        exc_item = dict_item.copy()
+                        exc_item[gram] = freq
+                        excs_out.append(exc_item)
+                
+                dict_name = "freqs_" + str(n_gram) + "gram"
+                dict_item[dict_name] = freqs
+            
+            list_out.append(dict_item)
+ 
             
         # Write dict to list
-        list_out.append(dict_item)
+            
     return list_out, excs_out, grams_list
 
 def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
@@ -97,13 +108,13 @@ def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
                     
         
         
-path = "C:/Users/mathe/Documents/Kitab project/Big corpus datasets/date_tagged_corpus/15_03/dated/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/0845Maqrizi.Mawaciz.Shamela0011566-ara1.date_tagged"
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()
     f.close()
 
-out, exc_out = split_date_freq(text)
+out, exc_out, grams_out = split_date_freq(text)
 # Split text into sections
 
 # Get section title - pass to dict
