@@ -7,6 +7,8 @@ Created on Wed Jun 16 10:17:05 2021
 
 import pandas as pd
 import re
+import os
+from tqdm import tqdm
 
 
 
@@ -185,7 +187,7 @@ def string_y_tag (string):
 
 
 def date_sub(m):
-    print('.', end = '')
+    
     date_string = m.group(0)
     date_tag = string_y_tag(date_string)        
     return " " + date_tag + date_string
@@ -193,17 +195,24 @@ def date_sub(m):
 
 
 
-path = "D:/OpenITI Corpus/latest_corpus_02_21/data/0845Maqrizi/0845Maqrizi.Mawaciz/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed"
-out_path = "C:/Users/mathe/Documents/Kitab project/Big corpus datasets/date_tagged_corpus/whole text tagger/outputs/0845Maqrizi.Mawaciz.Shamela0011566-ara1.date_tagged"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/inputs"
+out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/"
 
-with open(path, encoding = "utf-8") as f:
+for root, dirs, files in os.walk(path, topdown=False):
+    for name in tqdm(files):            
+        text_path = os.path.abspath(os.path.join(root, name))
+
+        with open(text_path, encoding = "utf-8") as f:
             text = f.read()
             f.close()
 
-sana = "سنة"
-text = re.sub(r"(?<=%s)((\s?\n[#~][~\s]?)?\s?(\n#)?\w+[.,:،؟?]?){5}" % (sana), date_sub, text)
-
-with open(out_path, "w", encoding = "utf-8") as f:
-    f.write(text)
-    f.close()
+        sana = "سنة"
+        text = re.sub(r"(?<=%s)((\s?\n[#~][~\s]?)?\s?(\n#)?\w+[.,:،؟?]?){5}" % (sana), date_sub, text)
+        
+        out_name = name + ".dates_tagged"
+        text_out_path = os.path.abspath(os.path.join(out_path, out_name))
+        
+        with open(text_out_path, "w", encoding = "utf-8") as f:
+            f.write(text)
+            f.close()
     
