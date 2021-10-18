@@ -7,8 +7,11 @@ Created on Thu Oct 14 16:54:43 2021
 
 import re
 import pandas as pd
+import os
+from tqdm import tqdm
 
-def pattern_map_muq(text, on = "head", tops = False, w_counts = False):
+
+def count_dates_muq(text, on = "head", tops = False, w_counts = False):
     if on == "head":
         split_seps = re.split(r"(###\s\|\|\|\s)", text)
         splits = []
@@ -23,6 +26,7 @@ def pattern_map_muq(text, on = "head", tops = False, w_counts = False):
     if w_counts:
         columns.append("st_pos")
         columns.append("mid_pos")
+        columns.append("w_count")
     
     
     columns.append("date")
@@ -37,8 +41,8 @@ def pattern_map_muq(text, on = "head", tops = False, w_counts = False):
  
     
     
-    for idx, split in enumerate(splits):
-        print('.', end = '')
+    for idx, split in enumerate(tqdm(splits)):
+        
         temp = [idx + 1]
         
         if w_counts:
@@ -46,38 +50,41 @@ def pattern_map_muq(text, on = "head", tops = False, w_counts = False):
             sec_length = len(re.split(r"\s", split))
             temp.append(word_counter + (sec_length/2))
             word_counter = word_counter + sec_length
+            temp.append(sec_length)
             
             
-        d_dates = re.findall("###\s\|\|\|.*-\s.*\[-?.*(\d\d\d)\]", split)
-        print(d_dates)
+        d_dates = re.findall("###\s\|\|\|.*-\s.*\[-?\D*(\d{1,3})\]", split)
+        
         if len(d_dates) >= 1:
             d_date = d_dates[0]
-            century = int(d_date[0] + "00")
+            
             if len(d_date) == 2:
                 d_date = "0" + d_date
-            print(d_date[1:3])
+            elif len(d_date) == 1:
+                d_date = "00" + d_date
             
+            century = int(d_date[0] + "00")
             if int(d_date[1:3]) <= 25:
                 y25 = century + 25
-                print("25")
+                
             elif int(d_date[1:3]) <= 50:
                 y25 = century + 50
-                print("50")
+                
             elif int(d_date[1:3]) <= 75:
                 y25 = century + 75
-                print("75")
+                
             else:
-                y25 = century
-                print("100")
-            name = re.findall("###\s\|\|\|.*-\s(.*)\[.*\]", split)[0]
+                if century == 0:
+                    y25 = 100
+                else:
+                    y25 = century + 100
+                
             
-            temp.extend([int(d_date), century, y25, name])
+            name = re.findall("###\s\|\|\|.*-\s(.*)\[.*\]?", split)[0]
+            
+            temp.extend([int(d_date), century, str(y25), name])
         else:
-            name = re.findall("###\s\|\|\|\s.*-\s(.*)\n", split)
-            if len(name) >= 1:
-                temp.extend([000, 000, 000, name[0]])
-            else:
-                continue
+            continue
         
             
         if tops:            
@@ -86,18 +93,22 @@ def pattern_map_muq(text, on = "head", tops = False, w_counts = False):
                 temp.append(int(topic[0]))
             else:
                 temp.append(0)
-        print(temp)
+        
         out.append(temp)
     
     out_df = pd.DataFrame(out, columns = columns)
     
     return out_df
 
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/inputs/0845Maqrizi.Muqaffa.Shamela19Y0145334-ara1"
+path_parent = os.path.dirname(os.getcwd())
+
+path = path_parent + "/whole text tagger/inputs/0845Maqrizi.Muqaffa.Shamela19Y0145334-ara1"
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()
     f.close()
 
 
-out = pattern_map_muq(text, w_counts = True)
+out = count_dates_muq(text, w_counts = True)
+
+out.to_csv("muq_bio_dates.csv", index = False)
