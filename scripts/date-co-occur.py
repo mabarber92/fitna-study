@@ -129,7 +129,10 @@ def comp_dates(seq_list):
     print(str(len(out)) + " date clusters found")
     return out    
                 
-                
+# New variant - loop through adding edges to nx graph with weights corresponding
+# to number of matches between each section. Then run community detection on sub
+# network graph - how will this take account of shared date combinations - weight 
+# doesn't know the actual dates        
                         
 
 def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
