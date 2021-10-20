@@ -75,7 +75,7 @@ def comm_detect(dict_list, node_thres = 1, cluster_thres = 1):
     return comms, comm_details, cluster_summary, len(comms_list)
             
 
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters/dated_splits_2_3_grams.json"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/qal_date_clusters/dated_splits_2_3_grams.json"
 
 with open(path) as f:
     data = f.read()
@@ -87,8 +87,8 @@ for i in range(1, 5):
     out, details, summary, count = comm_detect(dict_list, node_thres = i)
     json_out = json.dumps(details, indent = 1)
     summary_df = pd.DataFrame(summary, columns = ['cluster_id', 'cluster_length'])
-    path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters/clusters_threshold" + str(i) + "_cluster_count_" + str(count) + ".json"
-    csv_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters/summary_threshold" + str(i) + "_cluster_count_" + str(count) + ".csv"
+    path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/qal_date_clusters/clusters_threshold" + str(i) + "_cluster_count_" + str(count) + ".json"
+    csv_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/qal_date_clusters/summary_threshold" + str(i) + "_cluster_count_" + str(count) + ".csv"
     with open(path_out, "w", encoding = "utf-8") as f:
         f.write(json_out)
         f.close()

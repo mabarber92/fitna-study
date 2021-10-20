@@ -163,8 +163,8 @@ def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
                     
         
         
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged"
-path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters/dated_splits_2_3_grams.json"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/0821Qalqashandi.SubhAcsha.Shamela0009429-ara1.dates_tagged"
+path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/qal_date_clusters/dated_splits_2_3_grams.json"
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()
@@ -175,7 +175,7 @@ dict_list, excs_out, grams_list = split_date_freq(text)
 json_out = json.dumps(dict_list, indent = 2)
 json_out.encode('ascii').decode('unicode-escape')
 
-with open(path_out, "wb", encoding = "utf-8") as f:
+with open(path_out, "w", encoding = "utf-8") as f:
     f.write(json_out)
     f.close()
 
