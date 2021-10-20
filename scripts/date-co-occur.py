@@ -10,8 +10,10 @@ Created on Sun Oct 10 11:20:19 2021
 import re
 import os
 from tqdm import tqdm
+import json
 
-def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
+
+def split_date_freq(text, n_grams = [2, 3], exc_freq = 5):
     "Function that gets specified and counted ngrams"
     
     # Split text by section - create list for output
@@ -24,7 +26,9 @@ def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
     for n_gram in n_grams:
         name = "freqs_" + str(n_gram) + "gram"
         grams_list.append(name)
-        
+    
+    word_counter = 0
+    
     for seq, section in enumerate(tqdm(section_list)):
             dict_item = {}
     # Get title and level
@@ -36,7 +40,13 @@ def split_date_freq(text, n_grams = [1, 2], exc_freq = 5):
             dict_item["seq"] = seq
             dict_item["title"] = title
             dict_item["level"] = level
-        
+            
+            
+            dict_item["st_pos"] = word_counter
+            sec_length = len(re.split(r"\s", section))
+            dict_item["mid_pos"] = word_counter + (sec_length/2)
+            word_counter = word_counter + sec_length
+            
             dates = re.findall(r"@YY(\d{3})", section)
             
             if len(dates) >= 1:
@@ -153,11 +163,23 @@ def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
                     
         
         
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/0845Maqrizi.Mawaciz.Shamela0011566-ara1.date_tagged"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged"
+path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters/dated_splits_2_3_grams.json"
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()
     f.close()
+    
+dict_list, excs_out, grams_list = split_date_freq(text)
+
+json_out = json.dumps(dict_list, indent = 2)
+json_out.encode('ascii').decode('unicode-escape')
+
+with open(path_out, "wb", encoding = "utf-8") as f:
+    f.write(json_out)
+    f.close()
+
+
 
 # out, exc_out, grams_out = split_date_freq(text)
 # Split text into sections
