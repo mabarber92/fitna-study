@@ -49,7 +49,7 @@ def count_y_centuries(text_path, out_path, centuries = True):
     df_cen.to_csv(out_path + ".centuries_distinct.csv")    
 
 
-texts_input = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged"
+texts_input = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/for_update"
 output_loc = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/date_freqs/"
 
 for root, dirs, files in os.walk(texts_input, topdown=False):

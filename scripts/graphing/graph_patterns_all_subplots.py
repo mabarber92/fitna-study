@@ -6,6 +6,7 @@ Created on Wed Jun 16 15:46:31 2021
 """
 
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import pandas as pd
 
 def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, multiples = True, thres = 1):
@@ -21,7 +22,7 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     
     
     fig, axs = plt.subplots(len(columns), 1, sharex = True, sharey = True)
-    fig.set_size_inches(10, 10)
+    fig.set_size_inches(20, 10)
     
     col_list = []
     for column in columns:
@@ -52,7 +53,8 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
                         multiples_list.append(row)
                         break
         
-        
+        print("Number of sections:" + str(len(list_in)))
+        print("Number of multiples:" + str(len(multiples_list)))
         data_multiple = pd.DataFrame(multiples_list, columns = data.columns)
         
         
@@ -63,9 +65,11 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     for idx, column in enumerate(columns):
         axs[idx].plot("mid_pos", column["data"], linestyle = '-', data = data, label=column["label"], alpha = 0.8, linewidth = 0.7, color = column["colour"])
         axs[idx].set_ylabel(column["label"])
+        axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
         if multiples:
-            axs[idx].vlines("st_pos", ymin = 0 - (max_val/10), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-        axs[idx].vlines("st_pos", ymin = 0 - (max_val/10), ymax = 0 - (max_val/100), colors= 'red', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'red', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+    
     
     # data_list = data[["st_pos", "Topic_id"]].values.tolist()
     # for row in data_list:
@@ -84,7 +88,7 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     return data_multiple
 
 
-df = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/sections/0874IbnTaghribirdi.NujumZahira.JK001330-ara1.completed.dates_tagged.s_mapped.csv"
+df = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/ms/0733Nuwayri.NihayaArab.Shamela0010283-ara1.completed.dates_tagged.ms_mapped.csv"
 df_ms = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/ms/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged.ms_mapped.csv"
 
 dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "purple"},
@@ -93,6 +97,6 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "p
                {"data": "ayyubid", "label": "Ayyubid", "colour": "red"}, 
                {"data": "mamluk", "label": "Mamluk", "colour": "blue"}]
 
-df = plot_dynasty_map(df, "tagh_sec_sub.png", "Nujum", columns = dyn_columns)
+df = plot_dynasty_map(df, "nuw_sec_sub_ppt.png", "Niḥāya", columns = dyn_columns)
 
 

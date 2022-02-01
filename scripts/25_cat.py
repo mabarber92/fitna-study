@@ -9,7 +9,7 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/date_freqs"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/date_freqs_update"
 out_dir = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/25y_freqs"
 os.chdir(path)
 

@@ -13,12 +13,18 @@ def pattern_map(text, terms, on = "head", tops = False, w_counts = False):
     if on == "ms":
         splits = re.split(r"ms\d+", text)
     
+    terms_copy = terms[:]
+    for term in terms:
+        count = len(re.findall(term, text))
+        if count == 0:
+            terms_copy.remove(term)
+    
     out = []
     columns = ["section"]
     if w_counts:
         columns.append("st_pos")
         columns.append("mid_pos")
-    columns.extend(terms)
+    columns.extend(terms_copy)
     if tops:
         columns.append("Topic_id")
     
@@ -38,7 +44,7 @@ def pattern_map(text, terms, on = "head", tops = False, w_counts = False):
             
             
                 
-        for term in terms:            
+        for term in terms_copy:            
             count = len(re.findall(term, split))
             temp.append(count)
         if tops:            
@@ -54,13 +60,22 @@ def pattern_map(text, terms, on = "head", tops = False, w_counts = False):
     return out_df
 
 
-path = "C:/Users/mathe/Documents/Kitab project/Big corpus datasets/date_tagged_corpus/whole text tagger/outputs/0845Maqrizi.Mawaciz.Shamela0011566-ara1.date_tagged"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged"
+terms_df = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/terms_resources/terms_list.csv")["Term"].values.tolist()
+dates_df = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/terms_resources/dates_list.csv").values.tolist()
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()
     f.close()
 
-mapped = pattern_map(text, terms = ["باب العزم"], tops = False, w_counts = True)
+terms = terms_df[:]
+
+for row in dates_df:
+    for d in range(row[0], row[1]):
+        terms.append("@YY" + str(d))
+
+
+mapped = pattern_map(text, terms = terms, on= "head", tops = False, w_counts = True)
 
         
             

@@ -24,7 +24,7 @@ ittiaz_dates = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/da
 suluk_dates = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/25y_freqs/0845Maqrizi.Suluk.Shamela0006667-ara1.completed.dates_tagged.all_dates_distinct.csv_25y.csv")
 
 fig, axs = plt.subplots(4, 1, sharex=True, sharey=True)
-fig.set_size_inches(12, 18)
+fig.set_size_inches(20, 10)
 
 ax0 = sns.barplot(data = muq_dates, x="25-y", y="freq", estimator = np.sum, ci=None, ax=axs[0])
 add_data_labels(ax0)
