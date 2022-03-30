@@ -93,7 +93,7 @@ def id_clusters_text_tag(clusters_in_listed, book_dict, cluster_dict, parquet_pa
     
     # Sort the values so clusters are all together and remove the local_path column
     df_out = df_out.drop(["local_path", "series"], axis=1)
-    sort_vals = ["cluster", "from_input", "book"]
+    sort_vals = ["size", "cluster"]
     df_out = df_out.sort_values(by = sort_vals, ascending = True)
     
     df_len = len(df_out)
