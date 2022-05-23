@@ -94,44 +94,44 @@ text,\s@ST0@,Checked,Useful,Notes
 0748Dhahabi.TarikhIslam.Shamela0035100-ara1,16,,x,"1. same as Siyar 1, 2. poetry attribute to him, 3. his bio - line 372720, no Khitat, others ref him/or family as teacher"
 0749IbnFadlAllahCumari.MasalikAbsar.Kraken210630005153-ara1,5,,x,"1. Jawwani on himself, other stories of Jawwani's actions?, Ibn Mammati quoting first-person account of Jawwani (324596"
 0749MuayyadYahya.Intisar.Zaydiyya0000162-ara1,1,,,
-0749ZaynDinIbnWardi.Tarikh.Shamela0006624-ara1,2,,,
-0762IbnYusufZaylaci.NasbRaya.Shamela0011428-ara1,1,,,
-0762MughultayIbnQilij.IkmalTahdhib.Shamela0036515-ara1,8,,,
-0764IbnShakirKutubi.FawatWafayat.Shamela0001003-ara1,1,,,
-0764Safadi.NaktHimyan.Shamela0028182-ara1,2,,,
-0764Safadi.WafiBiWafayat.JK003609-ara1,8,,,
-0767CizzDinIbnJamaca.MukhtasarKabir.Shamela0006593-ara1,1,,,
-0774IbnKathir.Bidaya.Shamela0004445-ara1,4,,,
-0779IbnBattuta.Rihla.Shamela0011769-ara1,2,,,
-0795IbnRajabHanbali.DhaylTabaqatHanabila.Shamela0031366-ara1,4,,,
-0800IbnCadilHanbali.LubabFiCulumKitab.JK009266-ara1,1,,,
-0804IbnMulaqqin.MuqnicFiCulumHadith.JK000996-ara1,1,,,
-0804IbnMulaqqin.Tawdih.Sham19Y0013252-ara1,7,,,
-0807IbnFurat.TarikhDuwal.Kraken210719221518-ara1,3,,,
-0808IbnKhaldun.Rihla.Shamela0037022-ara1,3,,,
-0808IbnKhaldun.Tarikh.Shamela0012320-ara1,3,,,
-0817MajdDinFiruzabadi.Maghanim.ShamAY0038405-ara1,1,,,
-0817MajdDinFiruzabadi.QamusMuhit.Shia003957Vols-ara1,1,,,
-0821Qalqashandi.SubhAcsha.Shamela0009429-ara1,1,,,
-0828IbnCinaba.CumdatTalib.Shia001388-ara1,8,,,
-0832AbuTayyibFasi.ShifaGharam.Shamela0008362-ara1,2,,,
-0842IbnNasirDinDimashqi.JamicAthar.ShamAY0034447-ara1,6,,,
-0842IbnNasirDinDimashqi.TawdihMushtabih.JK007097-ara1,9,,,
-0845Maqrizi.Bayan.Shamela0009226-ara1,2,,,
-0845Maqrizi.ItticazHunafa.Shamela0000176-ara1,3,,,
-0845Maqrizi.Mawaciz.Shamela0011566-ara1,41,,,
-0845Maqrizi.Muqaffa.Shamela19Y0145334-ara1,24,,,
-0845Maqrizi.Rasail.Shamela0010710-ara1,2,,,
-0845Maqrizi.Suluk.Shamela0006667-ara1,1,,,
-0852IbnHajarCasqalani.FathBari.Shamela0001673-ara1,1,,,
-0852IbnHajarCasqalani.LisanMizan.Shamela0036357-ara1,8,,,
-0852IbnHajarCasqalani.MucjamMufahras.Shamela0010714-ara1,2,,,
-0852IbnHajarCasqalani.RafcIsr.Shamela0012724-ara1,6,,,
-0852IbnHajarCasqalani.TabsirMuntabih.Shamela0004092-ara1,4,,,
-0855BadrDinCayni.CiqdJuman.ShamAY0033840-ara1,2,,,
-0855BadrDinCayni.CumdatQari.Shamela0005756-ara1,4,,,
-0855BadrDinCayni.MaqasidNahwiyya.Sham19Y0016714-ara1,1,,,
-0874IbnTaghribirdi.ManhalSafi.Shamela0023156-ara1,10,,,
-0874IbnTaghribirdi.NujumZahira.JK001330-ara1,5,,,
-0880IbnAhmadShamsDinAsyuti.JawahirCuqud.Shamela0006172-ara1,1,,,
-0885BurhanDinBiqaci.NazmDurar.ShamAY0034073-ara1,1,,,
+0749ZaynDinIbnWardi.Tarikh.Shamela0006624-ara1,2,x,,
+0762IbnYusufZaylaci.NasbRaya.Shamela0011428-ara1,1,x,,
+0762MughultayIbnQilij.IkmalTahdhib.Shamela0036515-ara1,8,x,,
+0764IbnShakirKutubi.FawatWafayat.Shamela0001003-ara1,1,,x,"source for a bio - Ibn Hanzaba, appears to relate to Ibn Mudabbir and Wazir"
+0764Safadi.NaktHimyan.Shamela0028182-ara1,2,,x,biographical info from al-Salafi
+0764Safadi.WafiBiWafayat.JK003609-ara1,8,,x,"1. short bio - no Khitat, 'he was Shi'I', 2. wazir Ibn Hanzaba, "
+0767CizzDinIbnJamaca.MukhtasarKabir.Shamela0006593-ara1,1,,x,Quote on Nasab
+0774IbnKathir.Bidaya.Shamela0004445-ara1,4,x,,
+0779IbnBattuta.Rihla.Shamela0011769-ara1,2,x,,
+0795IbnRajabHanbali.DhaylTabaqatHanabila.Shamela0031366-ara1,4,,x,"Jawwani asked about nasab, asked about his father"
+0800IbnCadilHanbali.LubabFiCulumKitab.JK009266-ara1,1,x,,
+0804IbnMulaqqin.MuqnicFiCulumHadith.JK000996-ara1,1,,x,on nasab?
+0804IbnMulaqqin.Tawdih.Sham19Y0013252-ara1,7,,x,"1. on the 10th tabaqat, 2. on a person - nasab? 3. nasab, 4. nasab, 5. nasab/tabaqat, 6. nasab, "
+0807IbnFurat.TarikhDuwal.Kraken210719221518-ara1,3,x,,
+0808IbnKhaldun.Rihla.Shamela0037022-ara1,3,x,,
+0808IbnKhaldun.Tarikh.Shamela0012320-ara1,3,x,,
+0817MajdDinFiruzabadi.Maghanim.ShamAY0038405-ara1,1,,x,brief Jawwani bio - link to place?
+0817MajdDinFiruzabadi.QamusMuhit.Shia003957Vols-ara1,1,x,,
+0821Qalqashandi.SubhAcsha.Shamela0009429-ara1,1,,x,on the family - and link to place?
+0828IbnCinaba.CumdatTalib.Shia001388-ara1,8,,x,"1. son of Jawwani, on different Jawwanis and origins"
+0832AbuTayyibFasi.ShifaGharam.Shamela0008362-ara1,2,,x,quotes on nasab
+0842IbnNasirDinDimashqi.JamicAthar.ShamAY0034447-ara1,6,,x,nasab
+0842IbnNasirDinDimashqi.TawdihMushtabih.JK007097-ara1,9,,x,"biographies of various Jawwanis, Jawwani as teacher"
+0845Maqrizi.Bayan.Shamela0009226-ara1,2,,x,quoted on nasab
+0845Maqrizi.ItticazHunafa.Shamela0000176-ara1,3,,x,"1. nasab, 2. Khitat, 3. anecdote from time of al-Amir"
+0845Maqrizi.Mawaciz.Shamela0011566-ara1,41,,x,"poss Khitat - marked @tr, 30581 - clear explanation of vowelling variations of Jawwani and it's meaning for location, in and outside Egypt, 39561 - not Khitat quoted, 48675 - ref to Ibn Hanzaba case, 49054 - Jawwani collecting book on virtues of mosque, 55207 quoting nasab work on building Kufa mosque, 55481 - quoting nasab, 56391 - quoting nasab"
+0845Maqrizi.Muqaffa.Shamela19Y0145334-ara1,24,,x,"65158 - bio of author, remainder editorial or referring to him as teacher - no citations"
+0845Maqrizi.Rasail.Shamela0010710-ara1,2,,x,both nasab
+0845Maqrizi.Suluk.Shamela0006667-ara1,1,x,,
+0852IbnHajarCasqalani.FathBari.Shamela0001673-ara1,1,,x,nasab
+0852IbnHajarCasqalani.LisanMizan.Shamela0036357-ara1,8,,x,69946 - his bio - nothing on his books
+0852IbnHajarCasqalani.MucjamMufahras.Shamela0010714-ara1,2,x,,USEFUL FOR OTHER BOOK STUDIES OF FATIMIDS - IBN ZULAQ LISTED TWICE AS TAUGHT TEXT
+0852IbnHajarCasqalani.RafcIsr.Shamela0012724-ara1,6,,x,using Khitat as source for people - cases marked @tr
+0852IbnHajarCasqalani.TabsirMuntabih.Shamela0004092-ara1,4,,x,4. nasab
+0855BadrDinCayni.CiqdJuman.ShamAY0033840-ara1,2,x,,
+0855BadrDinCayni.CumdatQari.Shamela0005756-ara1,4,,x,"1. nasab, 2. nasab, 3. nasab, 4. nasab"
+0855BadrDinCayni.MaqasidNahwiyya.Sham19Y0016714-ara1,1,x,,
+0874IbnTaghribirdi.ManhalSafi.Shamela0023156-ara1,10,,x,"21050, 21062 - cites non Khitat - discussing wali of Madina, including into 480s; 21081 discussing other administrators, but stating he doesn't give genealogy for them - Perhaps search clusters for milestones of this region. In bio of a 9th century amir of madina."
+0874IbnTaghribirdi.NujumZahira.JK001330-ara1,5,,x,"Khitat marked @tr, 1. = full quotation with end marked, 32500 - listed as a death mentioned by al-Dhahabi for this year, 2 quotes total"
+0880IbnAhmadShamsDinAsyuti.JawahirCuqud.Shamela0006172-ara1,1,x,,
+0885BurhanDinBiqaci.NazmDurar.ShamAY0034073-ara1,1,,x,On Nasab - quoting from a biography
