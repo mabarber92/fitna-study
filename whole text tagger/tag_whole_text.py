@@ -10,12 +10,13 @@ import re
 import os
 from tqdm import tqdm
 
+dates_df = pd.read_csv("C:/Users/mathe/Documents/Kitab project/Big corpus datasets/Github/arabic_date_tagger/Full_corpus_25_10/dates df.csv", dtype=str)
 
 
-def string_y_tag (string):
+def string_to_date(line_split, n_tok, dates_df = dates_df):
     
     # Load in the conversion csv
-    dates_df = pd.read_csv("C:/Users/mathe/Documents/Kitab project/Big corpus datasets/Github/arabic_date_tagger/Full_corpus_25_10/dates df.csv", dtype=str)
+   
     
     dates_1 = dates_df[["1s", "1_no"]].dropna().values.tolist()
     dates_10 = dates_df[["10s", "10s_no"]].dropna().values.tolist()
@@ -24,11 +25,6 @@ def string_y_tag (string):
     start_terms = dates_df[["year", "meaning"]].dropna().values.tolist()
     exc_100 = "مائة"
     exc_100_2 = "مئة"
-    # Clean the line and get the token count (for efficiency)
-    line_clean = re.sub(r"ms\d+|\]|\[|\d+|[,./؟\?!()«»،:~]|###|\|", "", string)    
-    line_split = line_clean.split()
-    n_tok = len(line_split)
-    
     # Setting digits and other values
     d1 = "0"
     d2 = "0"
@@ -182,6 +178,29 @@ def string_y_tag (string):
     year = y_type + d3 + d2 + d1
     return year
     
+
+def string_y_tag (string):    
+    
+    # Clean the line and get the token count (for efficiency)
+    line_clean = re.sub(r"ms\d+|\]|\[|\d+|[,./؟\?!()«»،:~]|###|\|", "", string)    
+    
+   
+    if len(re.findall("سنة", line_clean)) > 0:
+        
+        date_strings = line_clean.split("سنة")
+        tag = ""
+        for date_string in date_strings:
+            line_split = date_string.split()
+            n_tok = len(line_split)
+            tag = tag + " " + string_to_date(line_split, n_tok) 
+    else: 
+        line_split = line_clean.split()
+        n_tok = len(line_split)
+        tag = string_to_date(line_split, n_tok)
+    return tag
+    
+    
+    
     
     
 
@@ -195,8 +214,9 @@ def date_sub(m):
 
 
 
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/inputs"
-out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/texts"
+out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new/"
+
 
 for root, dirs, files in os.walk(path, topdown=False):
     for name in tqdm(files):            
@@ -207,7 +227,7 @@ for root, dirs, files in os.walk(path, topdown=False):
             f.close()
 
         sana = "سنة"
-        text = re.sub(r"(?<=%s)((\s?\n[#~][~\s]?)?\s?(\n#)?\w+[.,:،؟?]?){5}" % (sana), date_sub, text)
+        text = re.sub(r"(?<=%s)(\s\S*){6}" % (sana), date_sub, text)
         
         out_name = name + ".dates_tagged"
         text_out_path = os.path.abspath(os.path.join(out_path, out_name))
