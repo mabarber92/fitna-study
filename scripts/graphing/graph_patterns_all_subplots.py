@@ -22,7 +22,7 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     
     
     fig, axs = plt.subplots(len(columns), 1, sharex = True, sharey = True)
-    fig.set_size_inches(20, 10)
+    fig.set_size_inches(8.5, 11)
     
     col_list = []
     for column in columns:
@@ -52,6 +52,27 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
                         
                         multiples_list.append(row)
                         break
+                    #ELSE THEN - IF COUNT == 1 - THIS IS ONLY 1 DYN ID'D - GET THE ID'D DYN - THIS WOULD BE EASIER IF PASSING IN AS DICTS
+        
+        
+        #From column list - subset the df for the column and get the unique dyns - output to do
+        unique_dyn_sects = pd.DataFrame()
+        for col in columns:
+            unique_dyn = data[data[col["data"]] > 0]
+            
+            for col_data in columns:
+                if col_data["data"] == col["data"]:
+                    continue
+                else:
+                    
+                    unique_dyn = unique_dyn[unique_dyn[col_data["data"]] == 0]
+                
+            unique_dyn["colour"] = col["colour"]
+            unique_dyn_sects = pd.concat([unique_dyn_sects, unique_dyn])
+            
+            #Add a total column to mappings - take the total to map the sections in these cases.
+        
+        
         
         print("Number of sections:" + str(len(list_in)))
         print("Number of multiples:" + str(len(multiples_list)))
@@ -68,7 +89,8 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
         axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
         if multiples:
             axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'red', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
     
     
     # data_list = data[["st_pos", "Topic_id"]].values.tolist()
@@ -88,15 +110,15 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     return data_multiple
 
 
-df = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/ms/0733Nuwayri.NihayaArab.Shamela0010283-ara1.completed.dates_tagged.ms_mapped.csv"
+df = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars/sections/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged.s_mapped.csv"
 df_ms = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/ms/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged.ms_mapped.csv"
 
-dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "purple"},
+dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "saddlebrown"},
                 {"data": "pre-fatimid", "label": "Pre-Fatimid", "colour" : "orange"},
                {"data": "fatimid", "label": "Fatimid", "colour": "green"}, 
                {"data": "ayyubid", "label": "Ayyubid", "colour": "red"}, 
                {"data": "mamluk", "label": "Mamluk", "colour": "blue"}]
 
-df = plot_dynasty_map(df, "nuw_sec_sub_ppt.png", "Niḥāya", columns = dyn_columns)
+df = plot_dynasty_map(df, "Khit_new_sects_charmap_a4.png", "Khiṭaṭ", columns = dyn_columns)
 
 
