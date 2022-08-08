@@ -145,26 +145,26 @@ def comp_dates(seq_list):
 # doesn't know the actual dates        
                         
 
-def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
-    seq_copy = seq_list[:]
-    for seq in seq_list:
-        for title in grams_list:
-            freq_list = seq[grams_list]
-            for item in freq_list:
-                match_count = 0
-                gram = item.key()
-                seq_copy.remove(seq)
-                for item_comp in seq_copy:
-                    if item_copy[title].has_key(gram):
-                        match_count = match_count + 1
+# def compare_freqs(seq_list, grams_list, thresh, on_dates = False):
+#     seq_copy = seq_list[:]
+#     for seq in seq_list:
+#         for title in grams_list:
+#             freq_list = seq[grams_list]
+#             for item in freq_list:
+#                 match_count = 0
+#                 gram = item.key()
+#                 seq_copy.remove(seq)
+#                 for item_comp in seq_copy:
+#                     if item_copy[title].has_key(gram):
+#                         match_count = match_count + 1
                         # INSTEAD FOR MATCH COUNT USE SUM OF FREQUENCIES IN COMPARED DOCUMENTS
                         # Need a way to count cumulatively - same ngrams between multiple sections
                             
                     
         
         
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged/0821Qalqashandi.SubhAcsha.Shamela0009429-ara1.dates_tagged"
-path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/qal_date_clusters/dated_splits_2_3_grams.json"
+path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged"
+path_out = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters_revised/dated_splits_2_3_grams.json"
 
 with open(path, encoding = "utf-8") as f:
     text = f.read()

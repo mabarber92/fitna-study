@@ -8,12 +8,13 @@ Created on Mon Aug  8 13:35:54 2022
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import pandas as pd
+from matplotlib import cm
 
 def plot_dynasty_date_scatter(csv_dates, csv_section, out, text_title, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, multiples = True, thres = 1):
     
-    df_section = pd.read_csv(csv_section)[30:40]
+    df_section = pd.read_csv(csv_section)
 
-    dates_data = pd.read_csv(csv_dates)[90:120]
+    dates_data = pd.read_csv(csv_dates)
     dates_data = dates_data[dates_data["date"] != 0]
     
     
@@ -85,8 +86,12 @@ def plot_dynasty_date_scatter(csv_dates, csv_section, out, text_title, columns =
         data_subset = dates_data[dates_data["colour"] == colour]
         print(colour)
         axs.scatter("pos", "date", s=2, data = data_subset, label="label", alpha = 0.8, c = "colour")
+        axs.vlines("pos", ymin = 0 - (max_val/5)*2, ymax = 0 - (max_val/5)*1.5, colors = "colour", data=data_subset, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+
         
-    axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+    # cmap = plt.get_cmap("OrRd")
+    # axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+    # axs.vlines("pos", ymin = 0 - (max_val/5)*2, ymax = 0 - (max_val/5)*1.5, colors = cmap(dates_data["date"]), data=dates_data, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
        
     axs.vlines("st_pos", ymin = 0 - (max_val/5)*1.5, ymax = 0 - (max_val/5), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
     axs.vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
@@ -118,4 +123,4 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
 csv_dates = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged.yy_mapped.csv"
 csv_section = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars/sections/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged.s_mapped.csv"
 
-data_multiple = plot_dynasty_date_scatter(csv_dates, csv_section, "Test_scatter_subset.png", "Khiṭaṭ", columns = dyn_columns)
+data_multiple = plot_dynasty_date_scatter(csv_dates, csv_section, "Test_scatter_dynasty-lines.png", "Khiṭaṭ", columns = dyn_columns)

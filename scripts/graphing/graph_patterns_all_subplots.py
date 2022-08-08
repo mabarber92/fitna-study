@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import pandas as pd
 
-def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, multiples = True, thres = 1):
+def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, reuse_map = None, multiples = True, thres = 1
+                     , separate_sections_graph = False):
     
     df_section = pd.read_csv(csv_section)
     
@@ -20,10 +21,13 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     
     
     
+    if not separate_sections_graph:
+        fig, axs = plt.subplots(len(columns), 1, sharex = True, sharey = True)
+        
+    if separate_sections_graph:
+        fig, axs = plt.subplots(len(columns) + 1, 1, sharex = True, sharey = True)
     
-    fig, axs = plt.subplots(len(columns), 1, sharex = True, sharey = True)
     fig.set_size_inches(8.5, 11)
-    
     col_list = []
     for column in columns:
         col_list.append(column["data"])
@@ -83,16 +87,38 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
     
     max_val = data[col_list].values.max(1).max()
     
-    for idx, column in enumerate(columns):
-        axs[idx].plot("mid_pos", column["data"], linestyle = '-', data = data, label=column["label"], alpha = 0.8, linewidth = 0.7, color = column["colour"])
-        axs[idx].set_ylabel(column["label"])
-        axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
-        if multiples:
+    if not separate_sections_graph:
+        for idx, column in enumerate(columns):
+            axs[idx].plot("mid_pos", column["data"], linestyle = '-', data = data, label=column["label"], alpha = 0.8, linewidth = 0.7, color = column["colour"])
+            axs[idx].set_ylabel(column["label"])
+            axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+            
             axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
-        axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
     
-    
+    if separate_sections_graph:
+        for idx, column in enumerate(columns):
+            axs[idx].plot("mid_pos", column["data"], linestyle = '-', data = data, label=column["label"], alpha = 0.8, linewidth = 0.7, color = column["colour"])
+            axs[idx].set_ylabel(column["label"])
+            axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+        if reuse_map is not None:
+            reuse_df = pd.read_csv(reuse_map)
+            colours_list = reuse_df["colour"].drop_duplicates().to_list()
+            for colour in colours_list:
+                colour_subset = reuse_df[reuse_df["colour"] == colour]
+                print(colour_subset)
+                axs[-1].vlines("begin", ymin = (max_val/4)*3, ymax = max_val, colors= 'colour', data=colour_subset, linewidth = 0.2, label = "Reuse", alpha = 0.4)
+            
+            axs[-1].vlines("st_pos", ymin = 0, ymax = (max_val/4), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+            axs[-1].vlines("st_pos", ymin = (max_val/4), ymax = (max_val/4)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+            axs[-1].vlines("st_pos", ymin = (max_val/4)*2, ymax = (max_val/4)*3, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+                
+        else:    
+            axs[-1].vlines("st_pos", ymin = 0, ymax = (max_val/3), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+            axs[-1].vlines("st_pos", ymin = (max_val/3), ymax = (max_val/3)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+            axs[-1].vlines("st_pos", ymin = (max_val/3)*2, ymax = max_val, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+            
     # data_list = data[["st_pos", "Topic_id"]].values.tolist()
     # for row in data_list:
     #     if row[1] != 0:
@@ -112,6 +138,8 @@ def plot_dynasty_map(csv_section, out, text_title, columns = [{"data": "fatimid"
 
 df = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars/sections/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged.s_mapped.csv"
 df_ms = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/ms/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged.ms_mapped.csv"
+reuse_map = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars/Mawaciz_earliest_reuse_map.csv"
+
 
 dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "saddlebrown"},
                 {"data": "pre-fatimid", "label": "Pre-Fatimid", "colour" : "orange"},
@@ -119,6 +147,6 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
                {"data": "ayyubid", "label": "Ayyubid", "colour": "red"}, 
                {"data": "mamluk", "label": "Mamluk", "colour": "blue"}]
 
-df = plot_dynasty_map(df, "Khit_new_sects_charmap_a4.png", "Khiṭaṭ", columns = dyn_columns)
+df = plot_dynasty_map(df, "Khit_new_sects_reuse_test.png", "Khiṭaṭ", columns = dyn_columns, reuse_map=reuse_map, separate_sections_graph = True)
 
 

@@ -71,8 +71,8 @@ def plot_clusters(csv_section, clusters_json, out, text_title):
     plt.show
     
 
-json_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters_non_dup/clusters_threshold4_cluster_count_27.json"
-sections = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings/sections/0845Maqrizi.Mawaciz.Shamela0011566-ara1.completed.dates_tagged.s_mapped.csv"
+json_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/khit_date_clusters_non_dup/new_data/louvain_weighted_clusters_threshold1_cluster_count_11.json"
+sections = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated/sections/0845Maqrizi.Mawaciz.MAB02082022-ara1.completed.dates_tagged.s_mapped.csv"
 
-plot_clusters(sections, json_path, "Khit_test_cl4_graph_nondup.png", "Khitat - Threshold 4 - No duplicates")
+plot_clusters(sections, json_path, "Khit_test_cl1_lovain_weighted_revised.png", "Khitat -  Threshold 1 - No duplicates")
 
