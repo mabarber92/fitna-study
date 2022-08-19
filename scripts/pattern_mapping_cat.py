@@ -8,8 +8,9 @@ import re
 import pandas as pd
 from tqdm import tqdm
 import os
+import pathlib
 
-def pattern_map_cat(text, date_cats = [], add_terms = None, on = "head", tops = False, w_counts = False, char_counts = False):
+def pattern_map_cat(text, date_cats = [], add_terms = None, on = "head", tops = None, w_counts = False, char_counts = False, map_terms = None):
     """ Takes date-range dictionary of {'beg': 0, 'end': 358, 'label': 'pre-Fatimid} """
     out = []
     columns = ["section"]
@@ -34,9 +35,18 @@ def pattern_map_cat(text, date_cats = [], add_terms = None, on = "head", tops = 
     
     if add_terms is not None:
         columns.extend(add_terms)
+        
     if tops:
         columns.append("Topic_id")
     
+    if map_terms is not None:
+        terms_copy = map_terms[:]
+        for term in map_terms:
+            count = len(re.findall(term, text))
+            if count == 0:
+                terms_copy.remove(term)
+        columns.extend(terms_copy)
+        
     word_char_counter = 0
  
  
@@ -66,12 +76,15 @@ def pattern_map_cat(text, date_cats = [], add_terms = None, on = "head", tops = 
             for term in add_terms:            
                 count = len(re.findall(term, split))
                 temp.append(count)
-        if tops:            
-            topic = re.findall(r"@TPC@(\d+)@", split)
+        if tops is not None:            
+            topic = re.findall(tops, split)
             if len(topic) >= 1:
-                temp.append(int(topic[0]))
+                temp.append(topic[0])
             else:
-                temp.append(0)
+                temp.append("None")
+        for term in terms_copy:            
+            count = len(re.findall(term, split))
+            temp.append(count)
         out.append(temp)
     
 
@@ -83,32 +96,39 @@ def pattern_map_cat(text, date_cats = [], add_terms = None, on = "head", tops = 
     return out_df
 
 
-in_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new"
-out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_updated_chars"
+# in_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new"
+# out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/mappings_mamluk_split"
 
 
-cats = [{'beg': 1, 'end': 100, 'label': 'first-century'}, 
-        {'beg': 101, 'end': 357, 'label': 'pre-fatimid'}, 
-        {'beg': 358, 'end': 567, 'label': 'fatimid'},
-        {'beg': 568, 'end': 648, 'label': 'ayyubid'},
-        {'beg': 649, 'end': 900, 'label': 'mamluk'}]
+# cats = [{'beg': 1, 'end': 100, 'label': 'first-century'}, 
+#         {'beg': 101, 'end': 357, 'label': 'pre-fatimid'}, 
+#         {'beg': 358, 'end': 567, 'label': 'fatimid'},
+#         {'beg': 568, 'end': 648, 'label': 'ayyubid'},
+#         {'beg': 649, 'end': 783, 'label': 'bahri-mamluk'},
+#         {'beg': 784, 'end': 900, 'label': 'circassian-mamluk'}]
 
 
-for root, dirs, files in os.walk(in_path, topdown=False):
-    for name in tqdm(files):
-        print(name)            
-        text_path = os.path.abspath(os.path.join(root, name))
-        section_path = out_path + "/sections/" + name + ".s_mapped.csv"
-        ms_path = out_path + "/ms/" + name + ".ms_mapped.csv"
+# for root, dirs, files in os.walk(in_path, topdown=False):
+#     for name in tqdm(files):
+#         print(name)            
+#         text_path = os.path.abspath(os.path.join(root, name))
+#         section_path = out_path + "/sections/"
+#         ms_path = out_path + "/ms/"
+#         if not os.path.exists(section_path):
+#             pathlib.Path(section_path).mkdir(parents=True, exist_ok=True)
+#         if not os.path.exists(ms_path):
+#             pathlib.Path(ms_path).mkdir(parents=True, exist_ok=True)
+#         section_path = out_path + "/sections/" + name + ".s_mapped.csv"
+#         ms_path = out_path + "/ms/" + name + ".ms_mapped.csv"
         
-        with open(text_path, encoding = "utf-8") as f:
-            text = f.read()
-            f.close()
+#         with open(text_path, encoding = "utf-8") as f:
+#             text = f.read()
+#             f.close()
             
-        section_mappings = pattern_map_cat(text, date_cats = cats, tops = False, char_counts = True)
-        section_mappings.to_csv(section_path)
+#         section_mappings = pattern_map_cat(text, date_cats = cats, tops = False, w_counts=True, char_counts = False)
+#         section_mappings.to_csv(section_path)
         
-        ms_mappings = pattern_map_cat(text, date_cats = cats, on="ms", tops = False, char_counts = True)
-        ms_mappings.to_csv(ms_path)
+#         ms_mappings = pattern_map_cat(text, date_cats = cats, on="ms", tops = False, w_counts=True, char_counts = False)
+#         ms_mappings.to_csv(ms_path)
         
     
