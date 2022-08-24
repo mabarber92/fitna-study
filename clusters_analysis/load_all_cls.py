@@ -9,13 +9,17 @@ import pyarrow.parquet as pq
 import os
 from tqdm import tqdm
 
-def load_all_cls(parquet_path, meta_path, max_date = 900, cluster_cap = 500):
+def load_all_cls(parquet_path, meta_path, max_date = 900, cluster_cap = 500, drop_strings = False, drop_dates = True):
     os.chdir(parquet_path)
     all_cls = pd.DataFrame()
+    print("Loading all clusters below: " + str(cluster_cap))
     for root, dirs, files in os.walk(".", topdown=False):
         for name in tqdm(files):
-            pq_path = os.path.join(root, name)            
-            data = pq.read_table(pq_path).to_pandas()[["cluster", "size", "seq", "series", "text", "begin", "end"]]
+            pq_path = os.path.join(root, name)
+            if not drop_strings:            
+                data = pq.read_table(pq_path).to_pandas()[["cluster", "size", "seq", "series", "text", "begin", "end"]]
+            else:
+                data = pq.read_table(pq_path).to_pandas()[["cluster", "size", "seq", "series", "begin", "end"]]
             if cluster_cap is not None:
                 data = data[data["size"] < cluster_cap]
 
@@ -33,12 +37,8 @@ def load_all_cls(parquet_path, meta_path, max_date = 900, cluster_cap = 500):
 
     # Applying the date filter to output
     all_cls = all_cls[(all_cls["date"] <= max_date)]
-    all_cls = all_cls.drop(columns = ["date"])
+    if drop_dates:
+        all_cls = all_cls.drop(columns = ["date"])
     
     return all_cls
 
-
-path = "D:/Corpus Stats/2021/Cluster data/Oct_2021/parquet/"
-meta_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5_merged_wNoor.csv"
-
-clusterdata = load_all_cls(path, meta_path, cluster_cap = None)
