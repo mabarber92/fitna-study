@@ -10,11 +10,11 @@ import re
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 
-def graph_terms_periods(section_terms_csv, terms, out, text_title, focussed_dates = None, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, reuse_map = None, multiples = True, thres = 1
-                     , separate_sections_graph = False):
+def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, terms = None, focussed_dates = None, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, reuse_map = None, multiples = True, thres = 1
+                     , separate_sections_graph = False, plot_width = 7, plot_height = 11):
     
     df_section = pd.read_csv(section_terms_csv)
-    terms_df = pd.read_csv(terms)
+    
     if focussed_dates is not None:
         focussed_dates_df = pd.read_csv(focussed_dates)
     
@@ -23,31 +23,40 @@ def graph_terms_periods(section_terms_csv, terms, out, text_title, focussed_date
     else:
         data = df_section.copy()
     
-    ### Create category aggregations and separate dfs and create category list
-    term_categories = []
-    for term in terms_df["Cat"].drop_duplicates().to_list():
-        print(term)
-        if focussed_dates is not None:
-            date_range = focussed_dates_df[focussed_dates_df["Cat"] == term]
-            if len(date_range) == 1:                
-                date_range = date_range.values.tolist()[0]
-                print(date_range)
-                terms_list = []
-                for i in range(int(date_range[0]), int(date_range[1])):
-                    col_title = "@YY" + str(i)
-                    if col_title in data.columns:
-                        terms_list.append(col_title)
-                cols = terms_df[terms_df["Cat"] == term]["Term"].to_list()
-                cols.extend(terms_list)
+    if set_col is not None:
+        print("Using fixed column list")
+        print(set_col)
+        term_categories = set_col.copy()
+    else:    
+        terms_df = pd.read_csv(terms)
+        ### Create category aggregations and separate dfs and create category list
+        term_categories = []
+        for term in terms_df["Cat"].drop_duplicates().to_list():
+            print(term)
+            if focussed_dates is not None:
+                date_range = focussed_dates_df[focussed_dates_df["Cat"] == term]
+                if len(date_range) == 1:                
+                    date_range = date_range.values.tolist()[0]
+                    print(date_range)
+                    terms_list = []
+                    for i in range(int(date_range[0]), int(date_range[1])):
+                        col_title = "@YY" + str(i)
+                        if col_title in data.columns:
+                            terms_list.append(col_title)
+                    cols = terms_df[terms_df["Cat"] == term]["Term"].to_list()
+                    cols.extend(terms_list)
+                else:
+                    cols = terms_df[terms_df["Cat"] == term]["Term"].to_list()
             else:
                 cols = terms_df[terms_df["Cat"] == term]["Term"].to_list()
-        else:
-            cols = terms_df[terms_df["Cat"] == term]["Term"].to_list()
-        term_categories.append({"term": term, "cols": cols})
-
+            term_categories.append({"term": term, "cols": cols})
     
-    print(term_categories)
-    
+        
+        print(term_categories)
+        
+        # Create aggregated data for term cats
+        for cat in term_categories:
+            data[cat["term"]] = data[cat["cols"]].sum(axis=1)
     
     if not separate_sections_graph:
         fig, axs = plt.subplots(len(term_categories), 1, sharex = True, sharey = False)
@@ -55,11 +64,10 @@ def graph_terms_periods(section_terms_csv, terms, out, text_title, focussed_date
     if separate_sections_graph:
         fig, axs = plt.subplots(len(term_categories) + 1, 1, sharex = True, sharey = False)
     
-    fig.set_size_inches(8.5, 11)
+    fig.set_size_inches(plot_width, plot_height)
     
-    # Create aggregated data for term cats
-    for cat in term_categories:
-        data[cat["term"]] = data[cat["cols"]].sum(axis=1)
+    
+    
     
     print(data)
     
@@ -123,15 +131,35 @@ def graph_terms_periods(section_terms_csv, terms, out, text_title, focussed_date
     max_val = data[col_list].values.max(1).max()
     
     if not separate_sections_graph:
-        for idx, column in enumerate(term_categories):
-            axs[idx].plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
-            axs[idx].set_ylabel(column["term"])
-            axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+        if len(term_categories) == 1:
+            column = term_categories[0]
+            axs.plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
+            axs.set_ylabel(column["term"])
+            axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
             max_val = data[column["term"]].values.max()
-            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
-            axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
-    
+            axs.vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+            if multiples:
+                axs.vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+                axs.vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+            tick_list = []
+            for i in range(0, max_val +1, 1):
+                tick_list.append(i)
+            axs.set_yticks(tick_list)
+        else:
+            for idx, column in enumerate(term_categories):
+                axs[idx].plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
+                axs[idx].set_ylabel(column["term"])
+                axs[idx].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
+                max_val = data[column["term"]].values.max()
+                axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+                if multiples:
+                    axs[idx].vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+                    axs[idx].vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+                tick_list = []
+                for i in range(0, max_val + 1, 1):
+                    tick_list.append(i)
+                axs[idx].set_yticks(tick_list)
+                
     if separate_sections_graph:
         for idx, column in enumerate(term_categories):
             axs[idx].plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
@@ -146,14 +174,16 @@ def graph_terms_periods(section_terms_csv, terms, out, text_title, focussed_date
                 axs[-1].vlines("begin", ymin = (max_val/4)*3, ymax = max_val, colors= 'colour', data=colour_subset, linewidth = 0.2, label = "Reuse", alpha = 0.4)
             
             axs[-1].vlines("st_pos", ymin = 0, ymax = (max_val/4), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-            axs[-1].vlines("st_pos", ymin = (max_val/4), ymax = (max_val/4)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
-            axs[-1].vlines("st_pos", ymin = (max_val/4)*2, ymax = (max_val/4)*3, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
-                
+            if multiples:
+                axs[-1].vlines("st_pos", ymin = (max_val/4), ymax = (max_val/4)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+                axs[-1].vlines("st_pos", ymin = (max_val/4)*2, ymax = (max_val/4)*3, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+                    
         else:    
             axs[-1].vlines("st_pos", ymin = 0, ymax = (max_val/3), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
-            axs[-1].vlines("st_pos", ymin = (max_val/3), ymax = (max_val/3)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
-            axs[-1].vlines("st_pos", ymin = (max_val/3)*2, ymax = max_val, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
-            
+            if multiples:
+                axs[-1].vlines("st_pos", ymin = (max_val/3), ymax = (max_val/3)*2, colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+                axs[-1].vlines("st_pos", ymin = (max_val/3)*2, ymax = max_val, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+                
     # data_list = data[["st_pos", "Topic_id"]].values.tolist()
     # for row in data_list:
     #     if row[1] != 0:
@@ -178,9 +208,11 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
                {"data": "bahri-mamluk", "label": "Bahri Mamluk", "colour": "slateblue"},
                {"data": "circassian-mamluk", "label": "Circassian Mamluk", "colour": "darkblue"}]
 
-out = "test_terms.png"
+out = "Khitat_806_mentions.png"
 terms_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/0845Maqrizi.Mawaciz.MAB02082022-sectionterms.csv"
 terms = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/terms_list.csv"
 dates = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/dates_list.csv"
+set_col = [{"term": "@YY806", "cols": ["@YY806"]}]
 
-graph_terms_periods(terms_csv, terms, out, "Khiṭaṭ", focussed_dates = dates, columns = dyn_columns)
+
+graph_terms_periods(terms_csv, out, "Khiṭaṭ", set_col = set_col, columns = dyn_columns, multiples=False, plot_height = 5)

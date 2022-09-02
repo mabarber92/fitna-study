@@ -13,7 +13,7 @@ import re
 import pandas as pd
 from pattern_mapping_cat import pattern_map_cat
 
-def multi_reuse_map(all_cls, tagged_text_path, dir_out, reused_texts = [], section_map = False, tops = None, date_cats = []):
+def multi_reuse_map(all_cls, tagged_text_path, dir_out, reused_texts = [], section_map = False, tops = None, date_cats = [], other_map = True):
     """For reused texts supply just 0000author.book URIs - the selection of all_cls will
     determine which version is used"""
     # Get filename
@@ -35,6 +35,7 @@ def multi_reuse_map(all_cls, tagged_text_path, dir_out, reused_texts = [], secti
             cluster_offsets[cluster_no]["ch_start_tar"] = cluster.start()
         if cluster.group(1) == "e":
             cluster_offsets[cluster_no]["ch_end_tar"] = cluster.start()
+        
     
     print("cluster offsets calculated")
     print(cluster_offsets)
@@ -44,24 +45,35 @@ def multi_reuse_map(all_cls, tagged_text_path, dir_out, reused_texts = [], secti
         print("Excluding main text:" + ".".join(text_name.split(".")[0:2]))
         filtered_clusters = all_cls[all_cls["book"] != ".".join(text_name.split(".")[0:2])]
     else:
+        if other_map:
+            remaining_clusters = all_cls[all_cls["book"] != ".".join(text_name.split(".")[0:2])]
         for reused_text in reused_texts:
             print(reused_text)
             book_data = all_cls[all_cls["book"] == reused_text]
-            print(book_data)
+
             filtered_clusters = pd.concat([filtered_clusters, book_data])
-        
-    print(filtered_clusters)
+            if other_map:
+                remaining_clusters = remaining_clusters[remaining_clusters["book"] != reused_text]
+      
+
     # Loop through clusters and create the df
     reuse_map_out = []
     for cluster in cluster_offsets.keys():
-        
-        cluster_data = filtered_clusters[filtered_clusters["cluster"] == int(cluster)][["book", "seq"]].values.tolist()
+        print(cluster)
+        cluster_data = filtered_clusters[filtered_clusters["cluster"] == int(cluster)][["book", "seq", "id"]].values.tolist()
         cluster_start = cluster_offsets[cluster]["ch_start_tar"]
         cluster_end = cluster_offsets[cluster]["ch_end_tar"]
-        print(cluster_data)
+
         for book in cluster_data:
             
-            reuse_map_out.append({"Text": book[0], "ch_start_tar":cluster_start, "ch_end_tar":cluster_end, "source_book_ms": book[1]})
+            reuse_map_out.append({"Text": book[0], "id": book[2], "ch_start_tar":cluster_start, "ch_end_tar":cluster_end, "source_book_ms": book[1], "book_count": 1, "cluster": cluster})
+        if reused_texts != [] and other_map:
+            cluster_data = remaining_clusters[remaining_clusters["cluster"] == int(cluster)][["book", "seq"]].values.tolist()
+            cluster_start = cluster_offsets[cluster]["ch_start_tar"]
+            cluster_end = cluster_offsets[cluster]["ch_end_tar"]
+            print(cluster_data)
+            if len(cluster_data) > 0:            
+                reuse_map_out.append({"Text": "Other", "id": "n/a", "ch_start_tar":cluster_start, "ch_end_tar":cluster_end, "source_book_ms": 0, "book_count": len(cluster_data), "cluster": cluster})
     
     reuse_out = pd.DataFrame(reuse_map_out)
     
@@ -77,7 +89,7 @@ def multi_reuse_map(all_cls, tagged_text_path, dir_out, reused_texts = [], secti
         
 
 
-text_in = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/clusters_tagged/0845Maqrizi.Mawaciz.sectionKhirabFustat.cl-tagged"
+text_in = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/clusters_tagged/0845Maqrizi.IghathaUmma.Kraken210223142017.cl-tagged"
 reused_texts = ["0845Maqrizi.ItticazHunafa",
 "0845Maqrizi.Mawaciz",
 "0845Maqrizi.Muqaffa",
@@ -85,4 +97,4 @@ reused_texts = ["0845Maqrizi.ItticazHunafa",
 "0845Maqrizi.ShudhurCuqud",
 "0845Maqrizi.Suluk"
 ]
-out_dir = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/maps"
+out_dir = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/revised_maps"
