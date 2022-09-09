@@ -10,7 +10,7 @@ import re
 import os
 from tqdm import tqdm
 
-dates_df = pd.read_csv("C:/Users/mathe/Documents/Kitab project/Big corpus datasets/Github/arabic_date_tagger/Full_corpus_25_10/dates df.csv", dtype=str)
+dates_df = pd.read_csv("dates df.csv", dtype=str)
 
 
 def string_to_date(line_split, n_tok, dates_df = dates_df):
@@ -214,8 +214,8 @@ def date_sub(m):
 
 
 
-path = "C:/Users/mathe/Documents/Github-repos/fitna-study/texts"
-out_path = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new/"
+path = "inputs"
+out_path = "outputs"
 
 
 for root, dirs, files in os.walk(path, topdown=False):
