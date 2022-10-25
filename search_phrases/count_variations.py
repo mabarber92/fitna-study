@@ -8,7 +8,7 @@ from tqdm import tqdm
 from collections import Counter
 
 def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 1000, 
-                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]", max_capture = 25):
+                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 0, post_capture = 25):
     # Filter the metadata for before date cut off and only primary
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]
@@ -23,14 +23,15 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
     # For the singling and counting it is important that we capture the same length phrase regardless 
     # of the length of the input string. So we determine the number of tokens captured by the regex
     # after the phrase by deducting the token count of  the phrase from the max_capture parameter
+    # the number of tokens captured prior to the phrase remains fixed
     regex_start = "("
     regex_mid = "\s(\w+\s){" 
     regex_end = "})"
     
     for phrase in phrase_list:
         norm_phrase = normalize_ara_heavy(phrase)
-        add_length = max_capture - len(norm_phrase.split(" "))
-        regexed = regex_start + norm_phrase + regex_mid + str(add_length) + regex_end
+        add_length = post_capture - len(norm_phrase.split(" "))
+        regexed = regex_start + regex_mid +str(pre_capture) + "}" + norm_phrase + regex_mid + str(add_length) + regex_end
         print(regexed)
         norm_phrase_list.append({"term" : regexed, "count" : 0})
         
@@ -64,7 +65,7 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
                 
     
     # Return a dataframe
-    
+    print("Number of results: " + str(len(results)))
     return pd.DataFrame(results)
           
 def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_csv, direction = "forward"):
@@ -89,23 +90,25 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
             for pos, tok in enumerate(tok_list):
                 out_pos[pos].append(tok)
                 # For 2-gram - get a subset based on position - to create shingle
-                if pos != phrase_length - 1:                    
+                if pos < phrase_length - 1:                    
                     grams_2.append(" ".join(tok_list[pos:pos+2]))
-                if pos != phrase_length - 2:                    
+                    
+                if pos < phrase_length - 2:                    
                     grams_3.append(" ".join(tok_list[pos:pos+3]))
-                
+                    
+                    
         if direction == "backward":
             for pos, tok in reversed(enumerate(tok_list)):
                 out_pos[pos].append(tok)
                 # For 2-gram - get a subset based on position - to create shingle
-                if pos != phrase_length - 1:
+                if pos < phrase_length - 1:
                     grams_2.append(" ".join(tok_list[pos:pos+2]))
-                if pos != phrase_length - 2:                    
+                if pos < phrase_length - 2:                    
                     grams_3.append(" ".join(tok_list[pos:pos+3]))
         
         # Create a list of all words
         all_words.extend(tok_list)
-        print(grams_3)
+       
     
     # Count and log the variants at each position
     print("Counting the term variations at each position")    
@@ -151,16 +154,19 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
     gram_3_df = gram_3_df.sort_values(["count"], ascending = False)
     gram_3_df.to_csv(gram3_csv, index=False, encoding = 'utf-8-sig')
     
-phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/phrase_starters.csv"  
-phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
+# phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/phrase_starters.csv"  
+# phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
 # phrase_list = ["اشتد الغلاء", "وعم الغلاء", "القحط المفرط", "الغلاء المفرط", "الغلاء والقحط", "اشتداد الغلاء", "امتد الغلاء", "الغلاء قد اشتد", "لم تبق اقوات", ]
+phrase_list = [".?يوسف"]
 
-corpus_base_path = "D:/OpenITI Corpus/latest_corpus_02_21/"
+corpus_base_path = "D:/OpenITI Corpus/corpus_10_21/"
 metadata_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
-out = "full_list_out/variation_counts1.csv"
-total = "full_list_out/total_counts1.csv"
-gram2 = "full_list_out/total_2grams.csv"
-gram3 = "full_list_out/total_3grams.csv"
+out = "Yusuf_search/variation_counts1.csv"
+total = "Yusuf_search/total_counts1.csv"
+gram2 = "Yusuf_search/total_2grams.csv"
+gram3 = "Yusuf_search/total_3grams.csv"
+results_path = "Yusuf_search/all_results.csv"
 
-results = capture_phrases(phrase_list, corpus_base_path, metadata_path)
-count_token_similarities(results, out, total, gram2, gram3)
+# results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capture = 9, post_capture = 20)
+# results.to_csv(results_path, encoding = "utf-8-sig", index = False)
+# count_token_similarities(results, out, total, gram2, gram3)
