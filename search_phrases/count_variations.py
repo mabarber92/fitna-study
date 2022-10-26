@@ -154,19 +154,19 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
     gram_3_df = gram_3_df.sort_values(["count"], ascending = False)
     gram_3_df.to_csv(gram3_csv, index=False, encoding = 'utf-8-sig')
     
-# phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/phrase_starters.csv"  
-# phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
+phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_focused_terms/phrase_queries.csv"  
+phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
 # phrase_list = ["اشتد الغلاء", "وعم الغلاء", "القحط المفرط", "الغلاء المفرط", "الغلاء والقحط", "اشتداد الغلاء", "امتد الغلاء", "الغلاء قد اشتد", "لم تبق اقوات", ]
-phrase_list = [".?يوسف"]
+# phrase_list = [".?يوسف"]
 
 corpus_base_path = "D:/OpenITI Corpus/corpus_10_21/"
 metadata_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
-out = "Yusuf_search/variation_counts1.csv"
-total = "Yusuf_search/total_counts1.csv"
-gram2 = "Yusuf_search/total_2grams.csv"
-gram3 = "Yusuf_search/total_3grams.csv"
-results_path = "Yusuf_search/all_results.csv"
+out = "Yusuf_focused_terms/variation_counts1.csv"
+total = "Yusuf_focused_terms/total_counts1.csv"
+gram2 = "Yusuf_focused_terms/total_2grams.csv"
+gram3 = "Yusuf_focused_terms/total_3grams.csv"
+results_path = "Yusuf_focused_terms/all_results.csv"
 
-# results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capture = 9, post_capture = 20)
-# results.to_csv(results_path, encoding = "utf-8-sig", index = False)
-# count_token_similarities(results, out, total, gram2, gram3)
+results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capture = 10, post_capture = 20)
+results.to_csv(results_path, encoding = "utf-8-sig", index = False)
+count_token_similarities(results, out, total, gram2, gram3)
