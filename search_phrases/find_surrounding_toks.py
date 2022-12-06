@@ -13,14 +13,18 @@ from tqdm import tqdm
 from collections import Counter
 
 def find_surrounding_toks(phrase_list, corpus_base_path, metadata_path, out_csv, end_date = 1000, 
-                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 1, post_capture = 0):
+                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 1, post_capture = 0, meta_field="local_path", debug=False, splitter=True):
     # Filter the metadata for before date cut off and only primary
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]
     metadata = metadata[metadata["date"] <= end_date]
-    metadata["rel_path"] = corpus_base_path + metadata["local_path"].str.split("/master/", expand = True)[1]
+    if splitter:
+        metadata["rel_path"] = corpus_base_path + metadata[meta_field].str.split("/master/", expand = True)[1]
+    else:
+        metadata["rel_path"] = corpus_base_path + "/" + metadata[meta_field]
     location_list = metadata["rel_path"].to_list()
-    
+    if debug:        
+        print(location_list)
     
     norm_phrase_list = []
     results = []
@@ -77,9 +81,9 @@ def find_surrounding_toks(phrase_list, corpus_base_path, metadata_path, out_csv,
     phrase_df = phrase_df.sort_values(["count"], ascending = False)
     phrase_df.to_csv(out_csv, index=False, encoding = 'utf-8-sig')
     
-corpus_base_path = "D:/OpenITI Corpus/corpus_10_21/"
-metadata_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
-out = "Yusuf_search/yusuf_phrases.csv"
+corpus_base_path = "D:/OpenITI Corpus/9001AH-master"
+metadata_path = "D:/OpenITI Corpus/9001AH-master/OpenITI-9001AH_metadata_2020-2-3.csv"
+out = "Yusuf_search/Ismaili_sub_corpus/search_results.csv"
 phrase_list = [".?يوسف"]
 
-find_surrounding_toks(phrase_list, corpus_base_path, metadata_path, out)
+find_surrounding_toks(phrase_list, corpus_base_path, metadata_path, out, meta_field="url", debug=True, splitter=False)

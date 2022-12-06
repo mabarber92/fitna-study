@@ -22,17 +22,17 @@ def check_cuda(model):
 	return model,cuda_device
 
 
-df = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_search/all_results.csv")
+df = pd.read_csv("C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_larger_window/all_results.csv")
 
 print("commencing embedding...")
 model_name = "aubmindlab/bert-base-arabertv02"
-max_seq_length=256
+max_seq_length=512
 
 word_embedding_model = models.Transformer(model_name, max_seq_length)
 pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(),
                                pooling_mode_mean_tokens=True)
 dense_model = models.Dense(in_features=pooling_model.get_sentence_embedding_dimension(), 
-                           out_features=256, 
+                           out_features=512, 
                            activation_function=nn.Tanh())
 model = SentenceTransformer(modules=[word_embedding_model, pooling_model, dense_model])
 model, cuda = check_cuda(model)
@@ -51,7 +51,7 @@ topic_model = BERTopic(language='multilingual')
 print("clustering and topic model built")
 
 # df is a dataframe. df['title'] is the column of text we're modeling
-df['topic'], probabilities = topic_model.fit_transform(df['phrase'], embeds)
+df['Topic'], probabilities = topic_model.fit_transform(df['phrase'], embeds)
 
 # # Add step to perform subtopic classification for larger sentence collections
 # sub_tops = 50
@@ -75,6 +75,10 @@ df['topic'], probabilities = topic_model.fit_transform(df['phrase'], embeds)
 
 # # name clusters
 # df['topic_name'] = app.name_topics((df['phrase'], df['topic']))[0]
-df = df.sort_values(by=['topic'])
+topic_info = topic_model.get_topic_info()
+df = df.merge(topic_info, on='Topic', how='left')
+df[["Topic", 't1', 't2', 't3', 't4']] = df["Name"].str.split("_", expand=True)
+df = df.drop(columns=['Name'])
+df = df.sort_values(by=['t1', 't2', 't3', 't4'])
 
-df.to_csv("Yusuf_search/topic_model_test_arabertv02_noset2.csv", index=False, encoding='utf-8-sig')
+df.to_csv("Yusuf_larger_window/topic_model_test_arabertv02.csv", index=False, encoding='utf-8-sig')

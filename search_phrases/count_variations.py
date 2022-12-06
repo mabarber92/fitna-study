@@ -8,12 +8,16 @@ from tqdm import tqdm
 from collections import Counter
 
 def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 1000, 
-                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 0, post_capture = 25):
+                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 0, post_capture = 25, meta_field="local_path", splitter=True):
     # Filter the metadata for before date cut off and only primary
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]
     metadata = metadata[metadata["date"] <= end_date]
-    metadata["rel_path"] = corpus_base_path + metadata["local_path"].str.split("/master/", expand = True)[1]
+    if splitter:
+        metadata["rel_path"] = corpus_base_path + metadata[meta_field].str.split("/master/", expand = True)[1]
+    else:
+        metadata["rel_path"] = corpus_base_path + "/" + metadata[meta_field]
+    
     location_list = metadata["rel_path"].to_list()
     
     
@@ -154,10 +158,10 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
     gram_3_df = gram_3_df.sort_values(["count"], ascending = False)
     gram_3_df.to_csv(gram3_csv, index=False, encoding = 'utf-8-sig')
     
-phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_focused_terms/phrase_queries.csv"  
-phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
+# phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_focused_terms/phrase_queries.csv"  
+# phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
 # phrase_list = ["اشتد الغلاء", "وعم الغلاء", "القحط المفرط", "الغلاء المفرط", "الغلاء والقحط", "اشتداد الغلاء", "امتد الغلاء", "الغلاء قد اشتد", "لم تبق اقوات", ]
-# phrase_list = [".?يوسف"]
+phrase_list = [".?يوسف"]
 
 corpus_base_path = "D:/OpenITI Corpus/corpus_10_21/"
 metadata_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
@@ -165,8 +169,13 @@ out = "Yusuf_focused_terms/variation_counts1.csv"
 total = "Yusuf_focused_terms/total_counts1.csv"
 gram2 = "Yusuf_focused_terms/total_2grams.csv"
 gram3 = "Yusuf_focused_terms/total_3grams.csv"
-results_path = "Yusuf_focused_terms/all_results.csv"
+results_path = "Yusuf_larger_window/all_results.csv"
 
-results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capture = 10, post_capture = 20)
+metadata_path2 = "D:/OpenITI Corpus/9001AH-master/OpenITI-9001AH_metadata_2020-2-3.csv"
+corpus_base_path2 = "D:/OpenITI Corpus/9001AH-master/"
+
+results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capture = 30, post_capture = 30)
+results2 = capture_phrases(phrase_list, corpus_base_path2, metadata_path2, pre_capture = 30, post_capture = 30, meta_field="url", splitter=False)
+results = pd.concat([results, results2])
 results.to_csv(results_path, encoding = "utf-8-sig", index = False)
-count_token_similarities(results, out, total, gram2, gram3)
+# count_token_similarities(results, out, total, gram2, gram3)
