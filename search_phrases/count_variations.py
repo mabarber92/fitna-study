@@ -15,14 +15,21 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]
     metadata = metadata[metadata["date"] <= end_date]
+
+    # Code to select one book for testing purposes
+    # metadata = metadata[metadata["version_uri"] == "0241IbnHanbal.Musnad.Shamela0025794-ara1"]
+
+    
     if splitter:
         metadata["rel_path"] = corpus_base_path + metadata[meta_field].str.split("/master/|\.\./", expand = True, regex=True)[1]
     else:
         metadata["rel_path"] = corpus_base_path + "/" + metadata[meta_field]
     
     location_list = metadata["rel_path"].to_list()
-    print(location_list)
     
+    
+    
+
     norm_phrase_list = []
     results = []
     
@@ -40,7 +47,8 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
         regexed = regex_start + regex_mid +str(pre_capture) + "}" + norm_phrase + regex_mid + str(add_length) + regex_end
         print(regexed)
         norm_phrase_list.append({"term" : regexed, "count" : 0})
-        
+
+    print(norm_phrase_list)   
     print("\n----------------\n\n")
     
     for location in tqdm(location_list):
@@ -69,10 +77,18 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
                         cleanSplit = re.sub(r"\s+", " ", cleanSplit)                        
                         # Normalise the text
                         cleanSplit = normalize_ara_heavy(cleanSplit)
+
+                        
+
                         msId = msSplit[idx+1]
-                        chCount = chCount + len(cleanSplit)
+
+                        chCount = chCount + len(cleanSplit) - 1
+                        
                         msLocs[chCount] = msId
+            print("...")
+            print("Calculated count: {}".format(chCount))
             
+
             # Get URI for output
             uri = location.split("/")[-1]
             
@@ -85,23 +101,27 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
             
             # Normalise the text
             text = normalize_ara_heavy(text)
+
+            print("Cleaned text length: {}".format(len(text)))
             
 
             for phrase in norm_phrase_list:
-                search_result = re.finditer(phrase["term"], text)
+                search_result = re.finditer(phrase["term"], text)               
                 for result in search_result:
                     if getMs:
                         matchPos = result.start()
                         nearMsCh = min(list(filter((matchPos).__le__, list(msLocs.keys()))))
                         
+                        
                         results.append({"phrase": result.group(), "uri": uri, "ms": msLocs[nearMsCh]})
                         
                     else:
                         results.append({"phrase": result.group(), "uri": uri})
-                
+        
+        print("Number of results: " + str(len(results)))     
     
     # Return a dataframe
-    print("Number of results: " + str(len(results)))
+    
     return pd.DataFrame(results)
           
 def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_csv, direction = "forward"):
@@ -193,15 +213,15 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
 # phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_focused_terms/phrase_queries.csv"  
 # phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
 # phrase_list = ["اشتد الغلاء", "وعم الغلاء", "القحط المفرط", "الغلاء المفرط", "الغلاء والقحط", "اشتداد الغلاء", "امتد الغلاء", "الغلاء قد اشتد", "لم تبق اقوات", ]
-phrase_list = [".?يوسف"]
+phrase_list = ["[بفل]?موسى"]
 
 corpus_base_path = "D:/OpenITI Corpus/corpus_2022_1_6/"
 metadata_path = "D:/Corpus Stats/2022/OpenITI_metadata_2022-1-6.csv"
-out = "Yusuf_final_with_tops/search_results/variation_counts1.csv"
-total = "Yusuf_final_with_tops/search_results/total_counts1.csv"
-gram2 = "Yusuf_final_with_tops/search_results/total_2grams.csv"
-gram3 = "Yusuf_final_with_tops/search_results/total_3grams.csv"
-results_path = "Yusuf_final_with_tops/search_results/results.csv"
+out = "Moses_results/variation_counts1.csv"
+total = "Moses_results/total_counts1.csv"
+gram2 = "Moses_results/total_2grams.csv"
+gram3 = "Moses_results/total_3grams.csv"
+results_path = "Moses_results/results-ms-corrected.csv"
 
 metadata_path2 = "D:/OpenITI Corpus/9001AH-master/OpenITI-9001AH_metadata_2020-2-3.csv"
 corpus_base_path2 = "D:/OpenITI Corpus/9001AH-master/"
@@ -210,4 +230,4 @@ results = capture_phrases(phrase_list, corpus_base_path, metadata_path, pre_capt
 results2 = capture_phrases(phrase_list, corpus_base_path2, metadata_path2, pre_capture = 30, post_capture = 30, meta_field="url", splitter=False)
 results = pd.concat([results, results2])
 results.to_csv(results_path, encoding = "utf-8-sig", index = False)
-count_token_similarities(results, out, total, gram2, gram3)
+# count_token_similarities(results, out, total, gram2, gram3)
