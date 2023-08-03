@@ -9,10 +9,49 @@ import pandas as pd
 import re
 import matplotlib.pyplot as plt
 from matplotlib import ticker
+from matplotlib import patches
+import seaborn as sns
+
+def create_area_dict(map_df, sum_col, bin_width = 5000):
+    dict_list_out = []
+    # Proxy for char total while we prove viability of graphing approach
+    char_total = int(map_df["mid_pos"].max())      
+    for i in range(0, char_total, bin_width):
+        
+        filtered_data = map_df[map_df["st_pos"].between(i, i+bin_width-1)]        
+        total_count = filtered_data[sum_col].sum()
+        if total_count > 0:
+            dict_list_out.append({"xy": (i, 0), "width":bin_width-1, "height": total_count})
+    return dict_list_out
+
+def plot_counts_as_area(axs, map_df, sum_col, bin_width = 2500):
+    area_dict_list = create_area_dict(map_df, sum_col, bin_width)
+    for area_dict in area_dict_list:
+        patch = patches.Rectangle(xy=area_dict["xy"], width=area_dict["width"], height=area_dict["height"], color="grey")
+        axs.add_patch(patch)
+
+def plot_cumulative_count(axs, map_df, cumul_col):
+    data_dict_list = map_df.to_dict("records")
+    cumulative_data_dicts = [{"mid_pos": 0, "Cumulative Count": 0}]    
+    cumulator = 0
+
+    for data_dict in data_dict_list:
+        cumulator = cumulator + data_dict[cumul_col]
+
+        cumulative_data_dicts.append({"mid_pos": data_dict["mid_pos"], "Cumulative Count": cumulator})
+    data_df = pd.DataFrame(cumulative_data_dicts)
+    axs.plot("mid_pos", "Cumulative Count", linestyle = '-', data = data_df, linewidth = 0.7)
+    axs.axline([0,0], [map_df["mid_pos"].max(), map_df[cumul_col].sum()], linestyle=':', linewidth=0.5, color='grey')
+
+    return data_df["Cumulative Count"].max()
+
 
 def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, terms = None, focussed_dates = None, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, reuse_map = None, multiples = True, thres = 1
-                     , separate_sections_graph = False, plot_width = 7, plot_height = 11):
+                     , separate_sections_graph = False, plot_width = 7, plot_height = 11, area_plot=True, cumulative_plot = False):
     
+    # Use a seaborn theme for the plot
+    sns.set_style("whitegrid", {"grid.linestyle": ':'})
+
     df_section = pd.read_csv(section_terms_csv)
     
     if focussed_dates is not None:
@@ -59,7 +98,10 @@ def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, term
             data[cat["term"]] = data[cat["cols"]].sum(axis=1)
     
     if not separate_sections_graph:
-        fig, axs = plt.subplots(len(term_categories), 1, sharex = True, sharey = False)
+        if cumulative_plot:
+            fig, axs = plt.subplots(1, 1, sharex = True, sharey = False)
+        else:
+            fig, axs = plt.subplots(len(term_categories), 1, sharex = True, sharey = False)
         
     if separate_sections_graph:
         fig, axs = plt.subplots(len(term_categories) + 1, 1, sharex = True, sharey = False)
@@ -131,20 +173,42 @@ def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, term
     max_val = data[col_list].values.max(1).max()
     
     if not separate_sections_graph:
-        if len(term_categories) == 1:
-            column = term_categories[0]
-            axs.plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
-            axs.set_ylabel(column["term"])
-            axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))
-            max_val = data[column["term"]].values.max()
-            axs.vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
+        if len(term_categories) == 1 or cumulative_plot:
+            # column = term_categories[0]
+            max_vals = []
+            for column in term_categories:
+                print(axs)
+                max_val = data[column["term"]].values.max()
+                if cumulative_plot:
+                    max_val = plot_cumulative_count(axs, data, column["term"])                
+                elif area_plot:
+                    plot_counts_as_area(axs, data, column["term"])
+                else:
+                    axs.plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
+                max_vals.append(max_val)
+            if len(term_categories) == 1:
+                axs.set_ylabel(column["label"])
+            else:
+                axs.set_label("Cumulative count of terms")
+            print(max_vals)
+            max_val = max(max_vals)
+            axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))            
+            axs.vlines("st_pos", ymin = 0 - (max_val/10), ymax = 0 - (max_val/100), colors= 'black', data=df_section, linewidth = 0.2, label = "Section\nboundary", alpha = 0.4)
             if multiples:
-                axs.vlines("st_pos", ymin = 0 - (max_val/5)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
-                axs.vlines("st_pos", ymin = 0 - (max_val/5), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
+                axs.vlines("st_pos", ymin = 0 - (max_val/10)/2, ymax = 0 - (max_val/100), colors= 'fuchsia', data=data_multiple, linewidth = 0.2, label = "Multiple dates")
+                axs.vlines("st_pos", ymin = 0 - (max_val/10), ymax = 0 - (max_val/100) - (max_val/5)/2, colors= unique_dyn_sects["colour"] , data=unique_dyn_sects, linewidth = 0.2, label = "Section\nboundary")
             tick_list = []
-            for i in range(0, max_val +1, 1):
-                tick_list.append(i)
-            axs.set_yticks(tick_list)
+            if not area_plot or not cumulative_plot:
+                for i in range(0, max_val +1, 1):
+                    tick_list.append(i)
+                axs.set_yticks(tick_list)
+            if cumulative_plot:
+                for i in range(0, max_val +1, 5):
+                    tick_list.append(i)
+                print(tick_list)
+                axs.set_yticks(tick_list)
+        
+            
         else:
             for idx, column in enumerate(term_categories):
                 axs[idx].plot("mid_pos", column["term"], linestyle = '-', data = data, alpha = 0.8, linewidth = 0.7)
@@ -208,11 +272,11 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
                {"data": "bahri-mamluk", "label": "Bahri Mamluk", "colour": "slateblue"},
                {"data": "circassian-mamluk", "label": "Circassian Mamluk", "colour": "darkblue"}]
 
-out = "Khitat_806_mentions.png"
+out = "Khitat_806_mentions_cumulative_test_comp.png"
 terms_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/0845Maqrizi.Mawaciz.MAB02082022-sectionterms.csv"
 terms = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/terms_list.csv"
 dates = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/dates_list.csv"
-set_col = [{"term": "@YY806", "cols": ["@YY806"]}]
+set_col = [{"term": "@YY806", "cols": ["@YY806"], "label": "Cumulative mentions of 806AH"}, {"term": "الحوادث والمحن", "cols": ["الحوادث والمحن"], "label": "Cumulative mentions of Mihan"}]
 
 
-graph_terms_periods(terms_csv, out, "Khiṭaṭ", set_col = set_col, columns = dyn_columns, multiples=False, plot_height = 5)
+graph_terms_periods(terms_csv, out, "Ḫiṭaṭ", set_col = set_col, columns = dyn_columns, multiples=False, plot_height = 5, cumulative_plot=True)
