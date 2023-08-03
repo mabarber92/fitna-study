@@ -13,7 +13,8 @@ from tqdm import tqdm
 from collections import Counter
 
 def find_surrounding_toks(phrase_list, corpus_base_path, metadata_path, out_csv, end_date = 1000, 
-                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 1, post_capture = 0, meta_field="local_path", debug=False, splitter=True):
+                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 1, post_capture = 0, meta_field="local_path", 
+                   debug=False, splitter=True):
     # Filter the metadata for before date cut off and only primary
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]

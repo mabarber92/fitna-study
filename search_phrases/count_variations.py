@@ -7,20 +7,29 @@ import os
 from tqdm import tqdm
 from collections import Counter
 
+
 def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 1000, 
-                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 0, post_capture = 25, meta_field="local_path", splitter=True):
+                   non_arabic = r"[^\w\s]|\d|[A-Z]|[a-z]|_", pre_capture = 0, post_capture = 25, meta_field="local_path", 
+                   splitter=True, getMs= True):
     # Filter the metadata for before date cut off and only primary
     metadata = pd.read_csv(metadata_path, sep = "\t")
     metadata = metadata[metadata["status"] == "pri"]
     metadata = metadata[metadata["date"] <= end_date]
+
+    # Code to select one book for testing purposes
+    # metadata = metadata[metadata["version_uri"] == "0241IbnHanbal.Musnad.Shamela0025794-ara1"]
+
+    
     if splitter:
-        metadata["rel_path"] = corpus_base_path + metadata[meta_field].str.split("/master/", expand = True)[1]
+        metadata["rel_path"] = corpus_base_path + metadata[meta_field].str.split("/master/|\.\./", expand = True, regex=True)[1]
     else:
         metadata["rel_path"] = corpus_base_path + "/" + metadata[meta_field]
     
     location_list = metadata["rel_path"].to_list()
     
     
+    
+
     norm_phrase_list = []
     results = []
     
@@ -38,7 +47,8 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
         regexed = regex_start + regex_mid +str(pre_capture) + "}" + norm_phrase + regex_mid + str(add_length) + regex_end
         print(regexed)
         norm_phrase_list.append({"term" : regexed, "count" : 0})
-        
+
+    print(norm_phrase_list)   
     print("\n----------------\n\n")
     
     for location in tqdm(location_list):
@@ -48,6 +58,37 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
                 text = f.read()
                 f.close()
             
+            # Split off header
+            text = re.split(r"#META#Header#End#", text)[-1]
+            
+            # If getMs split text into milestone chunks and get the clean char positions of ms
+            if getMs:
+                msLocs = {}
+                msSplit = re.split(r"ms(\d+)", text)
+                totalSplits = len(msSplit)
+                chCount = 0
+                
+                for idx, split in enumerate(msSplit):
+                    if not re.match(r"\d", split) and idx+1 != totalSplits:
+                        
+                        # Clean out non_arabic
+                        cleanSplit = re.sub(non_arabic, " ", split)
+                        # Replace multiple spaces
+                        cleanSplit = re.sub(r"\s+", " ", cleanSplit)                        
+                        # Normalise the text
+                        cleanSplit = normalize_ara_heavy(cleanSplit)
+
+                        
+
+                        msId = msSplit[idx+1]
+
+                        chCount = chCount + len(cleanSplit) - 1
+                        
+                        msLocs[chCount] = msId
+            print("...")
+            print("Calculated count: {}".format(chCount))
+            
+
             # Get URI for output
             uri = location.split("/")[-1]
             
@@ -60,16 +101,27 @@ def capture_phrases(phrase_list, corpus_base_path, metadata_path, end_date = 100
             
             # Normalise the text
             text = normalize_ara_heavy(text)
+
+            print("Cleaned text length: {}".format(len(text)))
             
 
             for phrase in norm_phrase_list:
-                search_result = re.findall(phrase["term"], text)
+                search_result = re.finditer(phrase["term"], text)               
                 for result in search_result:
-                    results.append({"phrase": result[0], "book": uri})
-                
+                    if getMs:
+                        matchPos = result.start()
+                        nearMsCh = min(list(filter((matchPos).__le__, list(msLocs.keys()))))
+                        
+                        
+                        results.append({"phrase": result.group(), "uri": uri, "ms": msLocs[nearMsCh]})
+                        
+                    else:
+                        results.append({"phrase": result.group(), "uri": uri})
+        
+        print("Number of results: " + str(len(results)))     
     
     # Return a dataframe
-    print("Number of results: " + str(len(results)))
+    
     return pd.DataFrame(results)
           
 def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_csv, direction = "forward"):
@@ -161,15 +213,15 @@ def count_token_similarities (results_df, out_csv, total_csv, gram2_csv, gram3_c
 # phrases_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/search_phrases/Yusuf_focused_terms/phrase_queries.csv"  
 # phrase_list = pd.read_csv(phrases_csv)["term"].tolist()
 # phrase_list = ["اشتد الغلاء", "وعم الغلاء", "القحط المفرط", "الغلاء المفرط", "الغلاء والقحط", "اشتداد الغلاء", "امتد الغلاء", "الغلاء قد اشتد", "لم تبق اقوات", ]
-phrase_list = [".?يوسف"]
+phrase_list = ["[بفل]?موسى"]
 
-corpus_base_path = "D:/OpenITI Corpus/corpus_10_21/"
-metadata_path = "D:/Corpus Stats/2021/OpenITI_metadata_2021-2-5.csv"
-out = "Yusuf_focused_terms/variation_counts1.csv"
-total = "Yusuf_focused_terms/total_counts1.csv"
-gram2 = "Yusuf_focused_terms/total_2grams.csv"
-gram3 = "Yusuf_focused_terms/total_3grams.csv"
-results_path = "Yusuf_larger_window/all_results.csv"
+corpus_base_path = "D:/OpenITI Corpus/corpus_2022_1_6/"
+metadata_path = "D:/Corpus Stats/2022/OpenITI_metadata_2022-1-6.csv"
+out = "Moses_results/variation_counts1.csv"
+total = "Moses_results/total_counts1.csv"
+gram2 = "Moses_results/total_2grams.csv"
+gram3 = "Moses_results/total_3grams.csv"
+results_path = "Moses_results/results-ms-corrected.csv"
 
 metadata_path2 = "D:/OpenITI Corpus/9001AH-master/OpenITI-9001AH_metadata_2020-2-3.csv"
 corpus_base_path2 = "D:/OpenITI Corpus/9001AH-master/"
