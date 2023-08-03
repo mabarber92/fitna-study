@@ -214,8 +214,8 @@ def date_sub(m):
 
 
 
-path = "inputs"
-out_path = "outputs"
+path = "inputs/new"
+out_path = "outputs/new"
 
 
 for root, dirs, files in os.walk(path, topdown=False):

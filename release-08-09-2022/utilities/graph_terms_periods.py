@@ -30,7 +30,8 @@ def plot_counts_as_area(axs, map_df, sum_col, bin_width = 2500):
         patch = patches.Rectangle(xy=area_dict["xy"], width=area_dict["width"], height=area_dict["height"], color="grey")
         axs.add_patch(patch)
 
-def plot_cumulative_count(axs, map_df, cumul_col):
+def plot_cumulative_count(axs, map_df, cumul_col, label, add_diagonal_line = False):
+    map_df = map_df.sort_values(by=["mid_pos"])
     data_dict_list = map_df.to_dict("records")
     cumulative_data_dicts = [{"mid_pos": 0, "Cumulative Count": 0}]    
     cumulator = 0
@@ -40,14 +41,17 @@ def plot_cumulative_count(axs, map_df, cumul_col):
 
         cumulative_data_dicts.append({"mid_pos": data_dict["mid_pos"], "Cumulative Count": cumulator})
     data_df = pd.DataFrame(cumulative_data_dicts)
-    axs.plot("mid_pos", "Cumulative Count", linestyle = '-', data = data_df, linewidth = 0.7)
-    axs.axline([0,0], [map_df["mid_pos"].max(), map_df[cumul_col].sum()], linestyle=':', linewidth=0.5, color='grey')
+    
+    data_df.to_csv("cumulative_data_check.csv")
+    axs.plot("mid_pos", "Cumulative Count", linestyle = '-', data = data_df, linewidth = 0.5, label=label, alpha=0.7)
+    if add_diagonal_line:
+        axs.axline([0,0], [map_df["mid_pos"].max(), map_df[cumul_col].sum()], linestyle=':', linewidth=0.5, color='grey')
 
     return data_df["Cumulative Count"].max()
 
 
 def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, terms = None, focussed_dates = None, columns = [{"data": "fatimid", "label": "Fatimid"}, {"data": "ayyubid", "label": "Ayyubid"}, {"data": "mamluk", "label": "Mamluk"}], other_cat = None, csv_ms = None, reuse_map = None, multiples = True, thres = 1
-                     , separate_sections_graph = False, plot_width = 7, plot_height = 11, area_plot=True, cumulative_plot = False):
+                     , separate_sections_graph = False, plot_width = 7, plot_height = 11, area_plot=True, cumulative_plot = False, y_label_term="term"):
     
     # Use a seaborn theme for the plot
     sns.set_style("whitegrid", {"grid.linestyle": ':'})
@@ -170,7 +174,8 @@ def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, term
         
                                
     
-    max_val = data[col_list].values.max(1).max()
+    if len(col_list) > 0:
+        max_val = data[col_list].values.max(1).max()
     
     if not separate_sections_graph:
         if len(term_categories) == 1 or cumulative_plot:
@@ -180,7 +185,7 @@ def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, term
                 print(axs)
                 max_val = data[column["term"]].values.max()
                 if cumulative_plot:
-                    max_val = plot_cumulative_count(axs, data, column["term"])                
+                    max_val = plot_cumulative_count(axs, data, column["term"], column["label"])                
                 elif area_plot:
                     plot_counts_as_area(axs, data, column["term"])
                 else:
@@ -189,7 +194,8 @@ def graph_terms_periods(section_terms_csv, out, text_title, set_col = None, term
             if len(term_categories) == 1:
                 axs.set_ylabel(column["label"])
             else:
-                axs.set_label("Cumulative count of terms")
+                axs.set_ylabel("Cumulative count of {}".format(y_label_term))
+                axs.legend()
             print(max_vals)
             max_val = max(max_vals)
             axs.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.0f}"))            
@@ -273,10 +279,21 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
                {"data": "circassian-mamluk", "label": "Circassian Mamluk", "colour": "darkblue"}]
 
 out = "Khitat_806_mentions_cumulative_test_comp.png"
-terms_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/0845Maqrizi.Mawaciz.MAB02082022-sectionterms.csv"
+terms_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/release-08-09-2022/dates_data/0845Maqrizi.Mawaciz.MAB02082022.sections-top10-dates.csv"
 terms = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/terms_list.csv"
 dates = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/dates_list.csv"
-set_col = [{"term": "@YY806", "cols": ["@YY806"], "label": "Cumulative mentions of 806AH"}, {"term": "الحوادث والمحن", "cols": ["الحوادث والمحن"], "label": "Cumulative mentions of Mihan"}]
+set_col = [{"term": "@YY806", "cols": ["@YY806"], "label": "Cumulative mentions of 806AH"}, 
+           {"term": "@YY700", "cols": ["@YY700"], "label": "Cumulative mentions of @YY700"},
+           {"term": "@YY790", "cols": ["@YY790"], "label": "Cumulative mentions of @YY700"},
+           {"term": "@YY358", "cols": ["@YY358"], "label": "Cumulative mentions of @YY700"},
+           {"term": "@YY516", "cols": ["@YY516"], "label": "Cumulative mentions of @YY700"},
+           {"term": "@YY725", "cols": ["@YY725"], "label": "Cumulative mentions of @YY700"},
+           {"term": "@YY567", "cols": ["@YY576"], "label": "Cumulative mentions of @YY700"}]
+
+set_col = [{"term": "@YY806", "cols": ["@YY806"], "label": "806AH / 1403-4CE"}, 
+           {"term": "@YY725", "cols": ["@YY700"], "label": "725AH / 1324-5CE"},                
+           {"term": "@YY567", "cols": ["@YY567"], "label": "567AH / 1171-2CE"},
+           {"term": "@YY358", "cols": ["@YY358"], "label": "358AH / 968-9CE"}]
 
 
-graph_terms_periods(terms_csv, out, "Ḫiṭaṭ", set_col = set_col, columns = dyn_columns, multiples=False, plot_height = 5, cumulative_plot=True)
+graph_terms_periods(terms_csv, out, "Ḫiṭaṭ", set_col = set_col, columns = [], multiples=False, plot_height = 5, cumulative_plot=True, y_label_term="date")

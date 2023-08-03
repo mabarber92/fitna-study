@@ -138,8 +138,8 @@ def count_y_centuries(text_path, out_path, end_date = None, centuries = True, to
         
 
 
-texts_input = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/dates_tagged_new"
-output_loc = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/date_freqs_update/"
+texts_input = "C:/Users/mathe/Documents/Github-repos/fitna-study/whole text tagger/outputs/new-1-8-23"
+output_loc = "C:/Users/mathe/Documents/Github-repos/fitna-study/dates_analysis/date_freqs_update-1-8-23/"
 
 for root, dirs, files in os.walk(texts_input, topdown=False):
     for name in tqdm(files):            
