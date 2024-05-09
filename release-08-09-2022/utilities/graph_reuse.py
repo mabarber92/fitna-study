@@ -82,7 +82,7 @@ def plot_reuse(reuse_map, out, maintext, section_map = None, top_colours = None,
     plt.show
     
 
-out = "Igatha_self_reuse-labelled-full-reuseback.png"
+out = "Igatha_self_reuse-labelled-full-reuseback.jpeg"
 reuse_map = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/revised_maps/0845Maqrizi.IghathaUmma.Kraken210223142017.cl-tagged-reuse.csv"
 section_map = "C:/Users/mathe/Documents/Github-repos/fitna-study/text_reuse/maps/0845Maqrizi.IghathaUmma.Kraken210223142017.cl-tagged-section.csv"
 topics = [{"id": "@PREIS@", "colour": "brown", "label" : "Pre-Islamic"},

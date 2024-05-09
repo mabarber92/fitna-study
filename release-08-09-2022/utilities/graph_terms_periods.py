@@ -278,7 +278,7 @@ dyn_columns = [{"data": "first-century", "label": "First century", "colour" : "s
                {"data": "bahri-mamluk", "label": "Bahri Mamluk", "colour": "slateblue"},
                {"data": "circassian-mamluk", "label": "Circassian Mamluk", "colour": "darkblue"}]
 
-out = "Khitat_806_mentions_cumulative_test_comp.png"
+out = "Khitat_806_mentions_cumulative.jpeg"
 terms_csv = "C:/Users/mathe/Documents/Github-repos/fitna-study/release-08-09-2022/dates_data/0845Maqrizi.Mawaciz.MAB02082022.sections-top10-dates.csv"
 terms = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/terms_list.csv"
 dates = "C:/Users/mathe/Documents/Github-repos/fitna-study/terms_analysis/terms_resources/dates_list.csv"
